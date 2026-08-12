@@ -1,6 +1,6 @@
 # Scenario ⑤ · Claude Code for Continuous Integration
 
-> **Official brief:** You are integrating Claude Code into your CI/CD pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide **actionable feedback and minimize false positives**.
+> **Official brief:** Add Claude Code to CI/CD for code review, test generation, and pull-request feedback. Prompts should produce **useful findings with few false positives**.
 
 **Primary domains:** [D3 Claude Code Config & Workflows](../domains/d3-claude-code.md) · [D4 Prompt Engineering & Structured Output](../domains/d4-prompting-structured-output.md)
 
@@ -8,14 +8,14 @@
 
 ```mermaid
 flowchart LR
-    PR["Pull request"] --> JOB["CI job<br/>claude -p 'review the diff'<br/>--output-format json --json-schema"]
-    CM["CLAUDE.md<br/>testing standards · fixtures ·<br/>review criteria"] --> JOB
-    PREV["Prior findings + existing tests<br/>in context → only NEW issues,<br/>no duplicate test suggestions"] --> JOB
+    PR["Pull request"] --> JOB["CI job: claude -p 'review the diff' --output-format json --json-schema"]
+    CM["CLAUDE.md: testing standards · fixtures · review criteria"] --> JOB
+    PREV["Prior findings + existing tests in context → only NEW issues, no duplicate test suggestions"] --> JOB
     JOB --> F["Structured findings JSON"]
     F --> IC["Inline PR comments"]
     subgraph REVIEW["Review architecture"]
         P1["Per-file local passes"] --> P2["Cross-file integration pass"]
-        P2 --> IND["Independent instance,<br/>never the session that wrote the code"]
+        P2 --> IND["Independent instance, never the session that wrote the code"]
     end
     JOB --- REVIEW
     classDef ci fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
@@ -30,11 +30,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    FP["😤 Devs ignoring the bot:<br/>too many false positives"] --> W1["❌ 'Be conservative' /<br/>'only high-confidence findings'"]
-    FP --> R1["✅ Explicit categorical criteria:<br/>'flag comments only when claimed behavior<br/>contradicts actual code behavior'"]
-    FP --> R2["✅ Temporarily disable the noisy<br/>category to protect trust in accurate ones"]
-    FP --> R3["✅ Few-shot: acceptable patterns<br/>vs genuine issues"]
-    FP --> R4["✅ detected_pattern field per finding →<br/>analyze what devs dismiss"]
+    FP["😤 Devs ignoring the bot: too many false positives"] --> W1["❌ 'Be conservative' / 'only high-confidence findings'"]
+    FP --> R1["✅ Explicit categorical criteria: 'flag comments only when claimed behavior contradicts actual code behavior'"]
+    FP --> R2["✅ Temporarily disable the noisy category to protect trust in accurate ones"]
+    FP --> R3["✅ Few-shot: acceptable patterns vs genuine issues"]
+    FP --> R4["✅ detected_pattern field per finding → analyze what devs dismiss"]
     classDef bad fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px
     classDef good fill:#E64A19,color:#fff,stroke:#BF360C,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px

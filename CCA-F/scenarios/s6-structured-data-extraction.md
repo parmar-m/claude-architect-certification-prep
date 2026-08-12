@@ -1,25 +1,25 @@
 # Scenario ⑥ · Structured Data Extraction
 
-> **Official brief:** You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JSON schemas, and maintains high accuracy. It must **handle edge cases gracefully** and integrate with downstream systems.
+> **Official brief:** Build a system that extracts structured data from documents, validates it against JSON schemas, handles missing or unusual values, and sends reliable output downstream.
 
 **Primary domains:** [D4 Prompt Engineering & Structured Output](../domains/d4-prompting-structured-output.md) · [D5 Context & Reliability](../domains/d5-context-reliability.md)
 
-*No official sample questions exist for this scenario; the exam guide's 12 samples cover scenarios ①②③⑤. Practice questions below are unofficial, written against the official task statements.*
+*The official samples do not cover this scenario. The questions below follow the official task statements.*
 
 ## Reference pipeline
 
 ```mermaid
 flowchart TD
-    DOCS["📄 Unstructured documents"] --> EX["🤖 Claude + extraction tool<br/>tool_use with JSON schema<br/>tool_choice: any / forced"]
-    FS["Few-shot examples:<br/>varied doc structures,<br/>informal measurements"] --> EX
-    EX --> VAL{"Validate<br/>(Pydantic / JSON schema)"}
-    VAL -- "semantic error<br/>(items ≠ total)" --> RETRY["Retry with document +<br/>failed extraction +<br/>specific validation error"]
+    DOCS["📄 Unstructured documents"] --> EX["🤖 Claude + extraction tool: tool_use with JSON schema: tool_choice: any / forced"]
+    FS["Few-shot examples: varied doc structures, informal measurements"] --> EX
+    EX --> VAL{"Validate (Pydantic / JSON schema)"}
+    VAL -- "semantic error (items ≠ total)" --> RETRY["Retry with document + failed extraction + specific validation error"]
     RETRY --> EX
-    VAL -- pass --> CONF{"Field-level confidence<br/>(calibrated on labeled sets)"}
-    CONF -- "low / conflicting source" --> HR["🙋 Human review<br/>+ stratified sampling of<br/>high-confidence output"]
+    VAL -- pass --> CONF{"Field-level confidence (calibrated on labeled sets)"}
+    CONF -- "low / conflicting source" --> HR["🙋 Human review + stratified sampling of high-confidence output"]
     CONF -- high --> DS["⚙️ Downstream systems"]
     HR --> DS
-    BATCH["📦 Batches API for volume:<br/>50% cost · 24h window ·<br/>custom_id · resubmit failures only"] -.-> EX
+    BATCH["📦 Batches API for volume: 50% cost · 24h window · custom_id · resubmit failures only"] -.-> EX
     classDef ex fill:#E64A19,color:#fff,stroke:#BF360C,stroke-width:2px
     classDef val fill:#388E3C,color:#fff,stroke:#1B5E20,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -37,11 +37,11 @@ flowchart LR
         B2["closed enums only"]
     end
     subgraph GOOD["✅ Edge-case-graceful schema"]
-        G1["nullable/optional fields for<br/>possibly-absent info → model<br/>returns null, doesn't invent"]
+        G1["nullable/optional fields for possibly-absent info → model returns null, doesn't invent"]
         G2["enum + 'unclear' for ambiguity"]
-        G3["enum + 'other' + detail string<br/>for extensible categories"]
-        G4["calculated_total alongside<br/>stated_total → flags discrepancies"]
-        G5["conflict_detected boolean for<br/>inconsistent source data"]
+        G3["enum + 'other' + detail string for extensible categories"]
+        G4["calculated_total alongside stated_total → flags discrepancies"]
+        G5["conflict_detected boolean for inconsistent source data"]
     end
     BAD -.-> GOOD
     classDef bad fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px

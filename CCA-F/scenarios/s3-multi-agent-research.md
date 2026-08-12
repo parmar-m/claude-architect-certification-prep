@@ -1,6 +1,6 @@
 # Scenario ③ · Multi-Agent Research System
 
-> **Official brief:** You are building a multi-agent research system using the Claude Agent SDK. A coordinator agent delegates to specialized subagents: one searches the web, one analyzes documents, one synthesizes findings, and one generates reports. The system researches topics and produces comprehensive, **cited** reports.
+> **Official brief:** Build a research system with the Claude Agent SDK. A coordinator delegates web search, document analysis, synthesis, and report generation to specialized agents. The output must be a clear, **cited** report.
 
 **Primary domains:** [D1 Agentic Architecture](../domains/d1-agentic-architecture.md) · [D2 Tool Design & MCP](../domains/d2-tool-design-mcp.md) · [D5 Context & Reliability](../domains/d5-context-reliability.md)
 
@@ -8,15 +8,15 @@
 
 ```mermaid
 flowchart TD
-    Q["Research topic"] --> CO["🧠 Coordinator<br/>allowedTools includes 'Task'<br/>decompose → delegate → evaluate gaps → re-delegate"]
-    CO -- "parallel Task calls<br/>in ONE response" --> WS["🔎 Web search agent<br/>scoped: search tools only"]
-    CO --> DA["📄 Document analysis agent<br/>scoped: doc tools only"]
-    CO --> SY["✍️ Synthesis agent<br/>+ scoped verify_fact tool"]
+    Q["Research topic"] --> CO["🧠 Coordinator: allowedTools includes 'Task': decompose → delegate → evaluate gaps → re-delegate"]
+    CO -- "parallel Task calls in ONE response" --> WS["🔎 Web search agent: scoped: search tools only"]
+    CO --> DA["📄 Document analysis agent: scoped: doc tools only"]
+    CO --> SY["✍️ Synthesis agent + scoped verify_fact tool"]
     CO --> RG["📊 Report generator"]
-    WS -- "findings + claim→source<br/>mappings + dates" --> CO
-    DA -- "findings + conflicts<br/>annotated, not resolved" --> CO
-    SY -- "coverage annotations:<br/>supported vs gaps" --> CO
-    RG --> OUT["Cited report:<br/>established vs contested sections"]
+    WS -- "findings + claim→source mappings + dates" --> CO
+    DA -- "findings + conflicts annotated, not resolved" --> CO
+    SY -- "coverage annotations: supported vs gaps" --> CO
+    RG --> OUT["Cited report: established vs contested sections"]
     classDef co fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef sub fill:#7E57C2,color:#fff,stroke:#4527A0,stroke-width:2px
     classDef io fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -34,11 +34,11 @@ sequenceDiagram
     participant WS as Web search subagent
     CO->>WS: Task: research subtopic X
     WS->>WS: query times out → local retry (transient)
-    WS--xCO: structured error: failure type,<br/>attempted query, partial results,<br/>alternative approaches
-    CO->>CO: decide: retry modified query /<br/>alternative source / proceed partial
+    WS--xCO: structured error: failure type, attempted query, partial results, alternative approaches
+    CO->>CO: decide: retry modified query / alternative source / proceed partial
     CO->>WS: Task: retry with narrowed query
     WS-->>CO: results (partial coverage noted)
-    Note over CO: final synthesis annotates<br/>coverage gaps, never silent
+    Note over CO: final synthesis annotates coverage gaps, never silent
 ```
 
 ## Patterns this scenario tests
@@ -66,7 +66,7 @@ sequenceDiagram
 
 <details><summary>Answer & rationale</summary>
 
-**B.** The logs reveal it directly: the coordinator decomposed "creative industries" into only visual-arts subtasks. The subagents executed their assignments correctly; the problem is *what they were assigned*. A, C, D blame downstream agents working correctly within scope.
+**B.** The logs reveal it directly: the coordinator decomposed "creative industries" into only visual-arts subtasks. The subagents executed their assignments correctly; the problem is *what they were assigned*.
 </details>
 
 **Q8.** The web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent. Which error propagation approach best enables intelligent recovery?

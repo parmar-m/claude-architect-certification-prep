@@ -1,6 +1,6 @@
 # P-D6 · Stakeholder Communication & Lifecycle Management (14%)
 
-Discovery, trade-off communication, expectation management (including SLAs), documentation, and lifecycle stewardship. Zero overlap with CCA-F: pure architect soft skills, and the cheapest 14% on the exam for anyone who learns the vocabulary.
+Gathering requirements, explaining trade-offs, setting expectations, documenting decisions, and managing a solution after launch.
 
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 6 objectives; prep course "Stakeholder Engagement, Lifecycle & GTM".
 
@@ -10,11 +10,11 @@ Discovery, trade-off communication, expectation management (including SLAs), doc
 
 ```mermaid
 flowchart LR
-    DISC["1️⃣ Discovery<br/>structured requirements:<br/>users · data · constraints ·<br/>success criteria · risk appetite"] --> DES["2️⃣ Design<br/>architecture + trade-offs<br/>communicated & signed off"]
-    DES --> BUILD["3️⃣ Build & validate<br/>prototype → evals →<br/>stakeholder feedback loops"]
-    BUILD --> HAND["4️⃣ Handoff<br/>docs · runbooks ·<br/>implementation guidance ·<br/>enablement"]
-    HAND --> MON["5️⃣ Monitoring<br/>SLAs · quality dashboards ·<br/>incident paths"]
-    MON --> IT["6️⃣ Iteration<br/>feedback → backlog →<br/>prompt/model/data updates"]
+    DISC["1️⃣ Discovery: structured requirements: users · data · constraints · success criteria · risk appetite"] --> DES["2️⃣ Design: architecture + trade-offs communicated & signed off"]
+    DES --> BUILD["3️⃣ Build & validate: prototype → evals → stakeholder feedback loops"]
+    BUILD --> HAND["4️⃣ Handoff: docs · runbooks · implementation guidance · enablement"]
+    HAND --> MON["5️⃣ Monitoring: SLAs · quality dashboards · incident paths"]
+    MON --> IT["6️⃣ Iteration: feedback → backlog → prompt/model/data updates"]
     IT --> DISC
     classDef ph fill:#C2185B,color:#fff,stroke:#880E4F,stroke-width:2px
     class DISC,DES,BUILD,HAND,MON,IT ph
@@ -22,39 +22,39 @@ flowchart LR
 
 ## Structured discovery
 
-**Know cold:**
-- Requirements gathering is **structured**, not ad hoc: business objective → users & volumes → data sources/sensitivity → integration points → latency/cost budgets → compliance constraints → measurable success criteria.
-- Define **success metrics with stakeholders before building**; an accuracy target agreed in discovery becomes the eval bar in [P-D4](d4-evaluation-testing-optimization.md).
-- Surface unstated constraints early (the interview pattern from [F-D3 Sec. 3.5](../../CCA-F/domains/d3-claude-code.md), aimed at humans).
+**Key points:**
+- Gather requirements in order: business goal → users and volume → data and sensitivity → integrations → latency and cost limits → compliance → success measures.
+- Agree on success measures before building. The accuracy target set during discovery becomes the evaluation target in [P-D4](d4-evaluation-testing-optimization.md).
+- Ask about hidden constraints early. See [F-D3 Sec. 3.5](../../CCA-F/domains/d3-claude-code.md).
 
 ## Communicating trade-offs
 
 ```mermaid
 flowchart TD
     TO["Architectural trade-off"] --> AUD{Audience}
-    AUD -- "executives" --> EX["Business terms:<br/>value pillar impact, risk,<br/>cost curve, time-to-market"]
-    AUD -- "engineering" --> EN["Technical terms:<br/>latency budgets, failure modes,<br/>integration surface"]
-    AUD -- "legal / compliance" --> LG["Data flows, regimes,<br/>controls, audit evidence"]
-    EX & EN & LG --> REC["One recommendation +<br/>explicit alternatives considered +<br/>why they lost; never a menu<br/>without a stance"]
+    AUD -- "executives" --> EX["Business terms: value pillar impact, risk, cost curve, time-to-market"]
+    AUD -- "engineering" --> EN["Technical terms: latency budgets, failure modes, integration surface"]
+    AUD -- "legal / compliance" --> LG["Data flows, regimes, controls, audit evidence"]
+    EX & EN & LG --> REC["One recommendation + explicit alternatives considered + why they lost; never a menu without a stance"]
     classDef aud fill:#C2185B,color:#fff,stroke:#880E4F,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class EX,EN,LG,REC aud
     class TO,AUD n
 ```
 
-**Know cold:**
-- Tailor the *same* decision to each audience; lead with what they care about.
-- Present options with a **clear recommendation and rationale**; decision records (ADR-style) document context, options, decision, consequences.
-- **Expectation management:** LLMs are probabilistic, so set accuracy expectations as measured ranges with error handling, never "it will always be right." Under-promise on timelines for eval/iteration cycles.
+**Key points:**
+- Explain the same decision in terms each audience understands.
+- Recommend one option and explain why. Record the context, alternatives, decision, and effects in an ADR.
+- Use measured accuracy ranges and explain error handling. Do not promise perfect results. Allow time for evaluation and improvement.
 
 ## SLAs & feedback loops
 
-- SLA dimensions for AI systems: **latency** (p50/p95), **availability**, **quality floor** (eval-measured accuracy), **cost ceiling**, plus escalation/response times for incidents.
-- Feedback loops: scheduled stakeholder reviews of quality dashboards + sampled outputs; user feedback channels feed the eval set; publish change logs when prompts/models change (behavior shifts are stakeholder-visible events).
+- An AI SLA should cover **latency** (p50/p95), **availability**, a measured **quality floor**, a **cost ceiling**, and incident response times.
+- Review quality dashboards and sample outputs with stakeholders. Add user feedback to the evaluation set. Publish changes to prompts and models because they can change system behavior.
 
 ## Documentation & handoff
 
-**Know cold:** architecture diagrams + data-flow maps · prompt/config inventory with versioning · runbooks (common failures, escalation paths) · eval baselines and how to re-run them · known limitations stated plainly. Handoff isn't an email; it's docs + enablement + a support window ([P-D7](d7-dev-productivity-enablement.md) covers the enablement half).
+**Handoff package:** Architecture and data-flow diagrams · versioned prompt and configuration list · runbooks with common failures and escalation paths · evaluation baselines and rerun instructions · known limits. Include training and a support period, not only an email. See [P-D7](d7-dev-productivity-enablement.md).
 
 ---
 
@@ -71,7 +71,7 @@ flowchart TD
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Tailor the same decision to each audience and lead with what they care about, always with a clear recommendation, never a menu without a stance. A ignores that each audience needs a different framing of the same decision; C skips two stakeholder groups whose buy-in or sign-off likely matters; D violates the no-menu-without-a-stance principle.
+**B.** Each audience needs different details, but all should receive the same recommendation and rationale.
 </details>
 
 **P2.** A stakeholder asks for "a chatbot that answers customer questions using our knowledge base," with no further detail. Before proposing an architecture, what should you do?
@@ -83,7 +83,7 @@ flowchart TD
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Requirements gathering is structured, not ad hoc; unstated constraints like data sensitivity, compliance, and success criteria change the design even when the pattern seems obvious. A jumps to architecture before establishing requirements; C and D each gather only a narrow slice of what structured discovery requires.
+**B.** Data sensitivity, compliance, scale, and success measures can change the design. Confirm them before selecting an architecture.
 </details>
 
 **P3.** A production system's SLA currently states only "the system will respond within 2 seconds." Six months in, stakeholders are blindsided by a week where responses stayed fast but answer quality clearly degraded after a prompt change, with no agreed process to report or escalate it. What's missing from the SLA?
@@ -95,7 +95,7 @@ flowchart TD
 
 <details><summary>Answer & rationale</summary>
 
-**B.** SLA dimensions for AI systems include latency, availability, a quality floor, a cost ceiling, and incident escalation/response times; this scenario is a quality regression with no defined reporting path, exactly what a quality floor plus escalation times would catch. A ignores the stated gap; C targets a dimension that wasn't the problem; D is the "100% accuracy" over-promise the domain explicitly says to reset, not something to write into an SLA.
+**B.** The SLA covers latency but not quality or escalation. A quality floor and response times would make the regression visible and actionable.
 </details>
 
 **P4.** A contracting team finishes building a Claude-based system and hands it off to the client's internal team with a single email summarizing what was built. Three weeks later, the client's team can't explain why a specific prompt behaves the way it does, doesn't know how to re-run the evals, and has no idea who to contact for a production incident. What was missing from the handoff?
@@ -107,7 +107,7 @@ flowchart TD
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Handoff isn't an email; it's docs plus enablement plus a support window. The specific gaps described (can't explain prompt behavior, can't re-run evals, no escalation contact) map directly to the named artifacts: config inventory, eval baselines, and runbooks. A and D are still just narrative explanation, not durable reference artifacts; C addresses availability, not the missing documentation itself.
+**B.** A useful handoff gives the new team durable references: system diagrams, versioned configuration, evaluation instructions, runbooks, and support contacts.
 </details>
 
 **P5.** Six months after launch, a team notices gradual quality decay as customer queries have shifted toward new product lines the original eval set didn't cover. Stakeholder reviews of quality dashboards are already happening quarterly. What lifecycle phase does this call for next?
@@ -119,7 +119,7 @@ flowchart TD
 
 <details><summary>Answer & rationale</summary>
 
-**B.** This is the lifecycle's iteration phase in its clearest form: feedback → backlog → prompt/model/data updates. A, C, and D each treat a normal monitoring-driven iteration as if it required restarting an earlier, heavier phase.
+**B.** Monitoring found drift, so the team should update the evaluation set and then adjust prompts, models, or data as needed.
 </details>
 
 ## Exam focus
@@ -132,4 +132,4 @@ flowchart TD
 | "Team inherits the system" | Runbooks, prompt inventory, eval baselines, limitations |
 | "Requirements keep shifting" | Structured discovery artifacts + agreed success criteria |
 
-**Practice:** prep course module ④ (178 min, the longest, matching this domain's breadth) · write one ADR for a real design you've made; it's the exam's mental model.
+**Practice:** prep course module ④ (178 min) · write an ADR for one of your own designs.

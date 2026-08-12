@@ -1,12 +1,12 @@
-> 👋 **A quick personal note:** This is my personal study notebook for the Claude Certified Architect exams — I'll keep updating it as my prep goes deeper, so expect it to grow and change. You'll find plenty of diagrams throughout, because concepts only really stick for me once I can visualize them. Spotted a mistake or have something to add? PRs are welcome. Good luck with your prep!
+> 👋 **A quick note:** This is my study notebook for the Claude Certified Architect exams. I update it as I learn, and I use diagrams to make the main ideas easier to remember. Corrections and pull requests are welcome.
 
 ---
 
 ## 1. Exam at a Glance (from official exam guides, v1.0, effective July 2026)
 
-Two exams, two levels: 
-- **CCA-F (Foundations)** tests hands-on building skills: agentic loops, tool/MCP design, Claude Code, prompting. 
-- **CCA-P (Professional)** layers architecture judgment on top: solution design, integration, evaluation, governance, and stakeholder management. 
+The certifications cover two levels:
+- **CCA-F (Foundations)** tests practical skills in agent loops, tools, MCP, Claude Code, and prompting.
+- **CCA-P (Professional)** focuses on solution design, integration, evaluation, governance, and stakeholder management.
 
 Neither is a prerequisite for the other. Side by side:
 
@@ -23,13 +23,13 @@ Neither is a prerequisite for the other. Side by side:
 | Audience | Solution architects building production apps with Claude Code, Agent SDK, Claude API, MCP (6+ months hands-on) | Mid/senior architects designing, integrating, governing end-to-end Claude systems (3+ yrs architecture, 6+ months Claude/LLM) |
 | Prerequisites | None mandatory | None mandatory |
 
-> 🧭 **New here? Start with the orientation primer:** [**From Models to Solutions: The Claude Stack**](claude-stack.md). It draws the map the domain chapters assume you already have — where the **API** (Messages API / Managed Agents) ends and the **Claude Code** product begins, how the **Agent SDK** bridges them, and which side each exam tests. Distilled from the official [platform intro](https://platform.claude.com/docs/en/intro) and [Claude Code overview](https://code.claude.com/docs/en/overview), with diagrams.
+> 🧭 **Start here:** [**From Models to Solutions: The Claude Stack**](claude-stack.md) explains the Messages API, Managed Agents, Claude Code, and the Agent SDK, and shows which parts each exam covers.
 
 ---
 
 ## 2. Syllabus: What's Tested & How to Prepare
 
-> **Deep-dive here:** the official exam guides *are* the syllabus: [CCA-F Exam Guide (PDF)](official-exam-guides/cca-f-exam-guide.pdf) ([online](https://everpath-course-content.s3-accelerate.amazonaws.com/instructor%2F6nizmqk8tpzpfjvt6qmmav7rh%2Fpublic%2F1783542750%2FClaude+Certified+Architect+%E2%80%93+Foundations+Exam+Guide.pdf)) and [CCA-P Exam Guide (PDF)](official-exam-guides/cca-p-exam-guide.pdf) ([online](https://everpath-course-content.s3-accelerate.amazonaws.com/instructor%2F6nizmqk8tpzpfjvt6qmmav7rh%2Fpublic%2F1783542810%2FClaude+Certified+Architect+%E2%80%93+Professional+Exam+Guide.pdf)). Everything below just summarizes those two documents.
+> The official guides define the syllabus: [CCA-F Exam Guide (PDF)](official-exam-guides/cca-f-exam-guide.pdf) ([online](https://everpath-course-content.s3-accelerate.amazonaws.com/instructor%2F6nizmqk8tpzpfjvt6qmmav7rh%2Fpublic%2F1783542750%2FClaude+Certified+Architect+%E2%80%93+Foundations+Exam+Guide.pdf)) and [CCA-P Exam Guide (PDF)](official-exam-guides/cca-p-exam-guide.pdf) ([online](https://everpath-course-content.s3-accelerate.amazonaws.com/instructor%2F6nizmqk8tpzpfjvt6qmmav7rh%2Fpublic%2F1783542810%2FClaude+Certified+Architect+%E2%80%93+Professional+Exam+Guide.pdf)). This section summarizes them.
 
 ### 2.1 CCA-F domain weights & scenario bank
 
@@ -68,14 +68,13 @@ pie showData title CCA-P domain weights (%)
     "D7 Dev Productivity & Enablement" : 7
 ```
 
-Worth noting when reading the pie: the technical half (D1+D2+D3+D4 = **65%**) decides pass/fail, but the soft-skill half (D5+D6+D7 = **35%**) is where CCA-F-trained candidates lose easy points, and it's the cheapest score to pick up.
+Technical domains D1-D4 make up **65%** of the exam. Governance, stakeholder, and enablement domains make up the remaining **35%**.
 
 See the whole CCA-P program at a glance ([here](CCA-P/README.md)).
 
 ### 2.3 How CCA-F feeds CCA-P (domain dependency map)
 
-**CCA-P is broader, less code-centric:** ~45% of it (Domains 1, 5, 6, 7) is architecture judgment, governance/compliance (GDPR, HIPAA, FedRAMP), stakeholder communication, and enablement. The CCA-F materials barely touch these. 
-CCA-F depth (agentic loops, MCP, Claude Code) still feeds CCA-P Domains 2–4 directly, as the map shows:
+CCA-P is broader and less focused on code. Domains 1, 5, 6, and 7 cover architecture, compliance, stakeholder communication, and enablement. CCA-F topics such as agent loops, MCP, and Claude Code feed directly into CCA-P Domains 2-4:
 
 ```mermaid
 flowchart LR
@@ -102,7 +101,7 @@ flowchart LR
     F5 --> P2
     F5 --> P4
     F3 --> P7
-    NEW["⚠️ New ground, study separately:<br/>RAG pipelines · compliance regimes · eval frameworks<br/>stakeholder & lifecycle management"]
+    NEW["⚠️ New ground, study separately: RAG pipelines · compliance regimes · eval frameworks stakeholder & lifecycle management"]
     NEW -.-> P3
     NEW -.-> P4
     NEW -.-> P5
@@ -137,9 +136,9 @@ flowchart LR
 
 ### 2.4 Suggested study sequence (Gantt with dependencies, CCA-P target)
 
-**Community reviews suggest both exams reward tradeoff reasoning over recall** (sample questions test least-privilege, prompt caching, RAG failure diagnosis) — I haven't sat either exam yet, so take this as secondhand signal rather than firsthand confirmation. Hands-on work with [anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks) plus building one end-to-end solution (RAG + evals + observability, as the guide recommends) beats memorization. The plan below is built around that.
+Community reviews suggest that both exams test judgment more than recall. I have not taken either exam, so treat that as secondhand advice. Practice with [anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks) and build one complete solution with RAG, evaluations, and observability.
 
-An 8-week pacing built from the dependency map above: master the shared foundation first, then the CCA-P technical core, then the governance & soft-skill domains, finishing with a hands-on build + mock exams (the official guide's own recommendation).
+The eight-week plan starts with shared foundations, moves through the CCA-P technical domains, and ends with governance, a practical build, and mock exams.
 
 ```mermaid
 gantt
@@ -264,5 +263,4 @@ gantt
 </details>
 
 ---
-
 

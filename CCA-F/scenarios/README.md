@@ -1,15 +1,15 @@
 # CCA-F Scenario Bank ➜ Domains Tested
 
-Each CCA-F sitting draws **4 of these 6 scenarios** at random; every scenario frames questions from 2–3 domains.
+Each exam uses **4 of these 6 scenarios**. A scenario can test two or three domains.
 
 ```mermaid
 flowchart LR
-    S1["① Customer Support<br/>Resolution Agent"] --> D1["D1 Agentic Architecture"] & D2["D2 Tool Design & MCP"] & D5["D5 Context & Reliability"]
-    S2["② Code Generation<br/>with Claude Code"] --> D3["D3 Claude Code"] & D5
-    S3["③ Multi-Agent<br/>Research System"] --> D1 & D2 & D5
-    S4["④ Developer<br/>Productivity"] --> D2 & D3 & D1
-    S5["⑤ Claude Code<br/>for CI/CD"] --> D3 & D4["D4 Prompting & Output"]
-    S6["⑥ Structured Data<br/>Extraction"] --> D4 & D5
+    S1["① Customer Support Resolution Agent"] --> D1["D1 Agentic Architecture"] & D2["D2 Tool Design & MCP"] & D5["D5 Context & Reliability"]
+    S2["② Code Generation with Claude Code"] --> D3["D3 Claude Code"] & D5
+    S3["③ Multi-Agent Research System"] --> D1 & D2 & D5
+    S4["④ Developer Productivity"] --> D2 & D3 & D1
+    S5["⑤ Claude Code for CI/CD"] --> D3 & D4["D4 Prompting & Output"]
+    S6["⑥ Structured Data Extraction"] --> D4 & D5
     classDef scen fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     classDef d1 fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef d2 fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
@@ -24,11 +24,11 @@ flowchart LR
     class D5 d5
 ```
 
-Note how D5 (Context & Reliability) shows up in 4 of 6 scenarios despite its 15% weight, so it's worth more than the number suggests.
+D5 appears in four scenarios despite its 15% weight, so study it across several contexts.
 
 ## Scenario deep-dives
 
-One file per scenario: official brief, reference architecture (mermaid), patterns tested, and sample questions (official where published, plus unofficial practice).
+Each file contains the official brief, a reference architecture, tested patterns, and practice questions.
 
 | Scenario | Official sample questions |
 |---|---|
