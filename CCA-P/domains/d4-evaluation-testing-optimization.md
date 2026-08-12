@@ -1,6 +1,6 @@
 # P-D4 · Evaluation, Testing & Optimization (16%)
 
-Defining metrics, building eval datasets and frameworks, A/B testing, diagnosing failures (prompt vs retrieval vs model), and optimizing token/latency/cost.
+Defining metrics, building evaluation sets, testing changes, finding failure causes, and improving token use, latency, and cost.
 
 **Builds on CCA-F:** [F-D4 Sec. 4.4–4.6](../../CCA-F/domains/d4-prompting-structured-output.md) (validation loops, review architectures) · [F-D5 Sec. 5.5](../../CCA-F/domains/d5-context-reliability.md) (confidence calibration).
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 4 objectives.
@@ -11,19 +11,19 @@ Defining metrics, building eval datasets and frameworks, A/B testing, diagnosing
 
 ```mermaid
 flowchart LR
-    DEF["1️⃣ Define metrics<br/>accuracy · latency · cost ·<br/>safety · security"] --> DS["2️⃣ Build eval dataset<br/>golden sets · edge cases ·<br/>real production samples"]
-    DS --> RUN["3️⃣ Run evals<br/>code graders · LLM-as-judge ·<br/>human review (mixed methods)"]
-    RUN --> AB["4️⃣ A/B test changes<br/>prompt / model / retrieval variants"]
-    AB --> MON["5️⃣ Monitor production<br/>logging · dashboards ·<br/>sampled review · drift alerts"]
+    DEF["1️⃣ Define metrics: accuracy · latency · cost · safety · security"] --> DS["2️⃣ Build eval dataset: golden sets · edge cases · real production samples"]
+    DS --> RUN["3️⃣ Run evals: code graders · LLM-as-judge · human review (mixed methods)"]
+    RUN --> AB["4️⃣ A/B test changes: prompt / model / retrieval variants"]
+    AB --> MON["5️⃣ Monitor production: logging · dashboards · sampled review · drift alerts"]
     MON --> DEF
     classDef step fill:#4527A0,color:#fff,stroke:#311B92,stroke-width:2px
     class DEF,DS,RUN,AB,MON step
 ```
 
-**Know cold:**
-- **Metrics come before optimization**: you can't tune what you don't measure; pick metrics per stakeholder concern (safety for compliance, latency for UX, cost for finance).
-- **Mixed methodologies:** deterministic graders for structure/facts, LLM-as-judge for open-ended quality (with calibrated rubrics + spot-check against humans), human review for high-stakes samples.
-- Eval sets need **edge cases and production-distribution samples**, refreshed as usage drifts; aggregate scores mask segment failures, so slice by input type ([F-D5 Sec. 5.5](../../CCA-F/domains/d5-context-reliability.md) again, at system level).
+**Key points:**
+- **Define metrics before optimizing.** Choose metrics for the stakeholder's concern: safety for compliance, latency for users, or cost for finance.
+- **Use several evaluation methods:** fixed graders for structure and facts, LLM judges with calibrated rubrics for open-ended quality, and human review for high-risk samples.
+- Evaluation sets need **edge cases and real production samples**. Refresh them as usage changes. Overall scores can hide failures, so also measure each input type ([F-D5 Sec. 5.5](../../CCA-F/domains/d5-context-reliability.md)).
 - A/B changes **one variable at a time**; hold the eval set constant; watch for regression on previously-passing segments.
 
 ## Failure diagnosis (the highest-yield skill)
@@ -31,20 +31,20 @@ flowchart LR
 ```mermaid
 flowchart TD
     SYM["🚨 Quality regression"] --> Q1{What changed?}
-    Q1 -- "documents / index refreshed" --> RET["🔎 Retrieval first:<br/>stale/irrelevant chunks, broken re-index,<br/>mismatched embeddings"]
-    Q1 -- "prompt edited" --> PR["📝 Prompt failure:<br/>criteria drift, lost instructions,<br/>format break"]
-    Q1 -- "model / tier swapped" --> MM["🤖 Model mismatch:<br/>task too hard for tier,<br/>or behavior shift on upgrade"]
-    Q1 -- "nothing (gradual)" --> DRIFT["📈 Input drift:<br/>new doc types / query patterns<br/>outside eval coverage"]
-    SYM --> HAL{"Confident but wrong<br/>(hallucination)?"}
+    Q1 -- "documents / index refreshed" --> RET["🔎 Retrieval first: stale/irrelevant chunks, broken re-index, mismatched embeddings"]
+    Q1 -- "prompt edited" --> PR["📝 Prompt failure: criteria drift, lost instructions, format break"]
+    Q1 -- "model / tier swapped" --> MM["🤖 Model mismatch: task too hard for tier, or behavior shift on upgrade"]
+    Q1 -- "nothing (gradual)" --> DRIFT["📈 Input drift: new doc types / query patterns outside eval coverage"]
+    SYM --> HAL{"Confident but wrong (hallucination)?"}
     HAL -- "grounded app" --> RET
-    HAL -- "schema fields invented" --> SCH["Nullable fields + validation<br/>(F-D4 Sec. 4.3)"]
+    HAL -- "schema fields invented" --> SCH["Nullable fields + validation (F-D4 Sec. 4.3)"]
     classDef diag fill:#4527A0,color:#fff,stroke:#311B92,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class RET,PR,MM,DRIFT,SCH diag
     class SYM,Q1,HAL n
 ```
 
-**Know cold (official sample 3):** RAG suddenly confident-but-wrong after a **document refresh**, latency/model unchanged → investigate **retrieval/indexing** first. Temperature, context size, "model weights silently changed" are distractors.
+**Key point:** If RAG becomes confidently wrong after a **document refresh** while the model and latency stay unchanged, inspect **retrieval and indexing** first.
 
 ## Optimization levers
 
@@ -59,7 +59,7 @@ flowchart TD
 
 ## Monitoring & observability
 
-- Log per request: prompt version, model, token counts, cost, latency per stage, retrieval hits + scores, tool calls, output + validation result.
+- Log the prompt version, model, tokens, cost, stage latency, retrieval results and scores, tool calls, output, and validation result for each request.
 - **Trace IDs across multi-agent/tool hops**; alert on drift in cost, latency, refusal rate, validation-failure rate.
 - Sampled human review of production output feeds new eval cases, closing the loop.
 
@@ -78,7 +78,7 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Confident-but-wrong answers right after a document refresh, with model and latency unchanged, point to retrieval feeding the model poor context, e.g. a broken re-index or mismatched embeddings. None of the other options are specifically triggered by a document refresh.
+**B.** The document refresh is the only change, so retrieval may be returning poor context because of a broken index or mismatched embeddings. The other options are not linked to the refresh.
 </details>
 
 ## Extra practice (unofficial)
@@ -92,7 +92,7 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Isolate the variable that changed; here, only the model version. New refusals with unchanged accuracy point at the model's updated behavior/guardrails interacting with existing prompt instructions, not retrieval (A, untouched), temperature (C, unrelated to refusal behavior), or stale labels (D, which would show up as reduced measured accuracy, not new refusals).
+**B.** Only the model changed. New refusals therefore point to its safety behaviour interacting with the existing prompt. Retrieval did not change, temperature does not explain refusals, and stale labels would affect measured accuracy.
 </details>
 
 **P2.** A team's only eval for a customer-facing drafting agent is automated exact-match string comparison against reference answers. Drafts that are correct but phrased differently are marked as failures, and the team has no way to catch subtly unhelpful (but string-different) responses. What should they add?
@@ -104,7 +104,7 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Mixed methodologies: exact-match alone can't assess semantically-correct-but-differently-phrased output. LLM-as-judge plus human review is the standard complement, not a replacement. A and C keep the same flawed instrument; D discards a fast, cheap, still-useful automated signal instead of complementing it.
+**B.** Exact matching cannot recognise correct answers written differently. Add an LLM judge and human review while keeping the automated check.
 </details>
 
 **P3.** A team wants to cut their agent's per-request cost. Logs show 70% of requests are simple FAQ-style questions, currently served by the same large model tier used for complex multi-step troubleshooting. What's the most directly justified optimization?
@@ -116,7 +116,7 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Model tiering applied to cost: 70% of volume is simple and doesn't need the expensive tier. A risks truncating needed output uniformly, including for the complex 30%; C helps latency/cost for repeated static prefixes but doesn't fix the wrong-tier-for-simple-tasks problem; D breaks the real-time responsiveness a live FAQ case likely needs.
+**B.** Most requests are simple and do not need the expensive model. A may cut off complex answers. C does not fix poor model routing. D would remove the real-time response that live FAQ users need.
 </details>
 
 **P4.** A team simultaneously changes the system prompt, switches to a new model version, and adjusts retrieval top-k, then reruns their eval suite and sees a 6% accuracy improvement. What's the problem with this result?
@@ -128,7 +128,7 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 
 <details><summary>Answer & rationale</summary>
 
-**B.** A/B changes one variable at a time and holds the eval set constant; three simultaneous changes make the result uninterpretable and risk masking a regression from one change offset by gains from another. A ignores the confound; C changes the measurement instrument rather than the testing discipline; D assumes an unverified attribution.
+**B.** Change one variable at a time and keep the evaluation set fixed. With three changes, you cannot identify the cause of the gain or see whether one change caused a hidden regression.
 </details>
 
 **P5.** A team needs to process 50,000 documents overnight with no one waiting on individual results, and separately runs a live chat feature where users watch responses arrive. Both currently use the same real-time API call pattern. What should change?
@@ -140,7 +140,7 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Batch API fits offline volume with no latency SLA (never for blocking flows); streaming improves perceived latency specifically for interactive use. A wastes streaming's benefit on a job nobody is watching; C would break the live chat's real-time requirement; D may help if there's a stable repeated prefix, but doesn't fix that the overnight job is on the wrong pricing/latency model entirely.
+**B.** The Batch API fits offline work where no one waits for a result. Streaming helps the live chat feel faster. A adds no value to the overnight job, C breaks live response, and D does not address the wrong API choice.
 </details>
 
 ## Exam focus

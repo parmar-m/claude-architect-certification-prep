@@ -1,6 +1,6 @@
 # Scenario ① · Customer Support Resolution Agent
 
-> **Official brief:** You are building a customer support resolution agent using the Claude Agent SDK. The agent handles high-ambiguity requests like returns, billing disputes, and account issues. It has access to your backend systems through custom MCP tools (`get_customer`, `lookup_order`, `process_refund`, `escalate_to_human`). Your target is **80%+ first-contact resolution while knowing when to escalate**.
+> **Official brief:** Build a support agent with the Claude Agent SDK. It handles returns, billing disputes, and account issues through custom MCP tools (`get_customer`, `lookup_order`, `process_refund`, `escalate_to_human`). The target is **80%+ first-contact resolution with reliable escalation**.
 
 **Primary domains:** [D1 Agentic Architecture](../domains/d1-agentic-architecture.md) · [D2 Tool Design & MCP](../domains/d2-tool-design-mcp.md) · [D5 Context & Reliability](../domains/d5-context-reliability.md)
 
@@ -8,15 +8,15 @@
 
 ```mermaid
 flowchart TD
-    CU["🧑 Customer"] --> AG["🤖 Support agent<br/>(Agent SDK loop on stop_reason)"]
-    AG --> HK["🔒 Hook layer<br/>tool-call interception + PostToolUse"]
+    CU["🧑 Customer"] --> AG["🤖 Support agent (Agent SDK loop on stop_reason)"]
+    AG --> HK["🔒 Hook layer: tool-call interception + PostToolUse"]
     HK --> T1["get_customer"]
     HK --> T2["lookup_order"]
     HK --> T3["process_refund"]
     HK --> T4["escalate_to_human"]
-    T1 & T2 & T3 --> BE[("Backend systems<br/>via MCP")]
-    T4 --> HU["🙋 Human agent<br/>+ structured handoff summary"]
-    HK -. "block refund > $500<br/>gate refund on verified ID" .-> T3
+    T1 & T2 & T3 --> BE[("Backend systems via MCP")]
+    T4 --> HU["🙋 Human agent + structured handoff summary"]
+    HK -. "block refund > $500 gate refund on verified ID" .-> T3
     classDef agent fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef hook fill:#D32F2F,color:#fff,stroke:#B71C1C,stroke-width:2px
     classDef tool fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
@@ -75,7 +75,7 @@ sequenceDiagram
 
 <details><summary>Answer & rationale</summary>
 
-**A.** When a specific tool sequence is required for critical business logic, programmatic enforcement provides deterministic guarantees that prompt-based approaches cannot. B and C rely on probabilistic LLM compliance, which isn't enough when errors have financial consequences. D addresses tool *availability*, not tool *ordering*.
+**A.** When a specific tool sequence is required for critical business logic, programmatic enforcement provides deterministic guarantees that prompt-based approaches cannot. B and C rely on probabilistic LLM compliance, which isn't enough when errors have financial consequences.
 </details>
 
 **Q2.** Production logs show the agent frequently calls `get_customer` when users ask about orders (e.g., "check my order #12345"), instead of calling `lookup_order`. Both tools have minimal descriptions ("Retrieves customer information" / "Retrieves order details") and accept similar identifier formats. What's the most effective first step to improve tool selection reliability?
@@ -99,7 +99,7 @@ sequenceDiagram
 
 <details><summary>Answer & rationale</summary>
 
-**A.** The root cause is unclear decision boundaries; explicit criteria + few-shot examples is the proportionate first response. LLM self-reported confidence (B) is poorly calibrated; the agent is *already* wrongly confident on hard cases. A classifier (C) is over-engineered before prompt optimization is tried. Sentiment (D) doesn't correlate with case complexity.
+**A.** The root cause is unclear decision boundaries; explicit criteria + few-shot examples is the proportionate first response. LLM self-reported confidence (B) is poorly calibrated; the agent is *already* wrongly confident on hard cases.
 </details>
 
 ## Extra practice (unofficial, written for this repo against the official task statements)

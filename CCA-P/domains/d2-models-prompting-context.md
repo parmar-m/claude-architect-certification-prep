@@ -1,6 +1,6 @@
 # P-D2 · Claude Models, Prompting & Context Engineering (13%)
 
-Model selection trade-offs, prompt architecture (system prompts, templates, guardrails), technique choice, and token/cost engineering: caching, modular prompts, Skills.
+Model selection, prompt structure, technique choice, and token and cost control through caching, modular prompts, and Skills.
 
 **Builds on CCA-F:** [F-D4 Prompting & Structured Output](../../CCA-F/domains/d4-prompting-structured-output.md) · [F-D5 Context & Reliability](../../CCA-F/domains/d5-context-reliability.md).
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 2 objectives.
@@ -11,22 +11,22 @@ Model selection trade-offs, prompt architecture (system prompts, templates, guar
 
 ```mermaid
 flowchart TD
-    REQ["Task requirements"] --> C{Reasoning<br/>complexity?}
-    C -- "deep, multi-step,<br/>high-stakes" --> BIG["🏆 Most capable tier<br/>higher cost + latency"]
-    C -- "moderate" --> MID["⚖️ Balanced tier,<br/>the production default"]
-    C -- "high-volume, simple<br/>classify/route/extract" --> SMALL["⚡ Fast/cheap tier"]
-    BIG & MID & SMALL --> TIERING["🏗️ Model tiering: route by difficulty,<br/>cheap model first, escalate hard cases;<br/>or coordinator on big model,<br/>subagents on small"]
+    REQ["Task requirements"] --> C{"Reasoning complexity?"}
+    C -- "deep, multi-step, high-stakes" --> BIG["🏆 Most capable tier: higher cost + latency"]
+    C -- "moderate" --> MID["⚖️ Balanced tier, the production default"]
+    C -- "high-volume, simple classify/route/extract" --> SMALL["⚡ Fast/cheap tier"]
+    BIG & MID & SMALL --> TIERING["🏗️ Model tiering: route by difficulty, cheap model first, escalate hard cases; or coordinator on big model, subagents on small"]
     classDef big fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class BIG,MID,SMALL,TIERING big
     class REQ,C n
 ```
 
-**Know cold:** selection axes = capability · latency · cost · context size. "Smallest model regardless of task fit" is always a distractor (official sample 2, option B). Justify tier by measured task difficulty, ideally via evals, not vibes.
+**Key point:** Choose by capability, latency, cost, and context size. Do not select the smallest model without testing it on the task.
 
 ### How the tiers map to Claude Code
 
-> Source: [model-config](https://code.claude.com/docs/en/model-config). The abstract tiers above have concrete handles in Claude Code: **aliases** pick the family, **effort** dials reasoning depth *within* a model, and **extended context** buys window size. Set via `/model`, the `model` setting, or `--model`.
+> Source: [model-config](https://code.claude.com/docs/en/model-config). In Claude Code, **aliases** choose the family, **effort** controls reasoning depth within a model, and **extended context** increases the window. Set them with `/model`, the `model` setting, or `--model`.
 
 | Alias | Tier role | Notes |
 |---|---|---|
@@ -37,43 +37,43 @@ flowchart TD
 | `opusplan` | **hybrid** | Opus **while planning**, auto-switches to Sonnet **for execution** |
 | `<family>[1m]` | extended context | `sonnet[1m]` / `opus[1m]` → **1M-token** window for long sessions |
 
-> **Beyond the aliases — Mythos.** The aliases above are the models you actually *select*. One tier sits above them but **isn't** an alias: **Mythos**, Anthropic's most capable model (state-of-the-art at cybersecurity and biology). It's the *safeguards-off sibling* of **Fable** — same underlying model, fewer guardrails — so it's **access-gated** (trusted-access programs only) and premium-priced, not something you route to with `/model`. Exam instinct: "most capable **generally available**" = Opus / Fable; Mythos is the gated frontier tier you don't reach for by default. (See orientation [Sec. 1](../../claude-stack.md#1-the-map--where-everything-sits).)
+> **Beyond the aliases: Mythos.** The table lists selectable aliases. **Mythos** is a separate higher tier with the same underlying model as Fable but fewer guardrails, limited access, and premium pricing. Choose Opus or Fable for general availability. See [Sec. 1](../../claude-stack.md#1-the-map--where-everything-sits).
 
-**Know cold — the architecture-judgment bits:**
-- **`opusplan`** is model tiering *inside one session*: expensive reasoning where it pays off (design), cheap model where it doesn't (implementation). It's the coordinator-on-big / workers-on-small idea, automated. (Caution — each plan-mode toggle is a **model switch → cache miss**, [F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md).)
-- **Effort level** (`low · medium · high · xhigh · max`, default `high`) is a *second* dial orthogonal to model choice: raise it for deep reasoning at higher token spend, lower it to cut cost/latency on a capable model. `max` = deepest, session-only. Don't reflexively reach for a bigger *model* when more *effort* on the current one is the cheaper lever. (Its API-side mechanics — adaptive thinking, how `max_tokens` bounds cost, effort as a cache key — are in the [thinking subsection below](#thinking--effort-at-the-api-level-the-other-side-of-the-same-dial).)
-- **Extended context (`[1m]`)** addresses *context size*, not capability — reach for it on genuinely long sessions, not as a fix for attention/quality problems (which want a multi-pass architecture, [F-D4 Sec. 4.6](../../CCA-F/domains/d4-prompting-structured-output.md)).
+**Architecture choices:**
+- **`opusplan`** tiers models within one session: stronger reasoning for design, lower-cost reasoning for implementation. Each plan-mode toggle changes models and misses the cache. See [F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md).
+- **Effort level** (`low · medium · high · xhigh · max`, default `high`) is separate from model choice. Raise it for deeper reasoning and lower it to reduce cost and latency. Try more effort before moving to a larger model. See the [thinking subsection](#thinking--effort-at-the-api-level-the-other-side-of-the-same-dial).
+- **Extended context (`[1m]`)** increases window size, not model ability. Use it for long sessions. Use multiple passes for attention or quality problems. See [F-D4 Sec. 4.6](../../CCA-F/domains/d4-prompting-structured-output.md).
 - **Fallback chains** (`--fallback-model` / `fallbackModel` setting, ≤3) = availability resilience: on overload/unavailable/server error, switch for that turn only. Distinct from **automatic content fallback** (Fable → provider's default Opus when a safety classifier flags a request).
 
 ### Thinking & effort at the API level (the other side of the same dial)
 
-> Source: [platform: thinking-steering-and-cost](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost) + [effort](https://platform.claude.com/docs/en/build-with-claude/effort). The `/model` view above is Claude Code's; on the **Messages API** the same reasoning dial has different mechanics worth knowing cold — it's the P-D2 counterpart to the Claude Code effort bullet.
+> Source: [platform: thinking-steering-and-cost](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost) + [effort](https://platform.claude.com/docs/en/build-with-claude/effort). The table above covers Claude Code. The **Messages API** uses the same reasoning control with different mechanics.
 
-**Thinking is adaptive, per request.** With `thinking: {type: "adaptive"}`, **the model decides — each request — whether to think and how deeply**, weighing input complexity. A trivial turn may carry **no thinking block at all**; don't write app logic assuming every assistant turn starts with one. This makes thinking a fit for workloads that mix trivial and complex requests.
+**Thinking adapts to each request.** With `thinking: {type: "adaptive"}`, the model decides whether to think and how deeply based on complexity. A simple turn may have no thinking block, so application logic must not require one. This works well for mixed simple and complex requests.
 
 **Three steering levers, in order:**
-1. **`effort`** at `output_config.effort` — the *calibrated* primary control. Same `low…max` dial as the model-config note above; on the API it also steers *whether* Claude thinks: `max`/`xhigh` always think, `low` skips it on simple turns. Prefer lowering effort to prompt-based tuning — a dial beats a wording-sensitive instruction.
-2. **System-prompt guidance** — shifts the threshold for the whole conversation ("think only when it materially helps; when in doubt, respond directly").
-3. **Per-message guidance** — steer a single turn ("think hard before responding" / "answer directly"). An agent harness can encourage thinking on planning steps and suppress it on routine confirmations without changing request params, and without breaking the prompt cache (see below).
+1. **`effort`** at `output_config.effort` is the main calibrated control. It uses the same `low…max` range. On the API, `max` and `xhigh` always think, while `low` may skip thinking on simple turns. Prefer this control over wording-sensitive prompt changes.
+2. **System-prompt guidance** changes the threshold for the whole conversation.
+3. **Per-message guidance** controls one turn, such as "think hard" or "answer directly". This can vary planning and routine turns without changing request parameters or breaking the prompt cache.
 
 ```mermaid
 flowchart TD
-    REQ["Each request"] --> ADAPT{"Claude weighs<br/>complexity<br/>(adaptive)"}
-    ADAPT -- simple --> NOTHINK["Direct answer<br/><i>no thinking block</i>"]
+    REQ["Each request"] --> ADAPT{"Claude weighs complexity (adaptive)"}
+    ADAPT -- simple --> NOTHINK["Direct answer: no thinking block"]
     ADAPT -- complex --> THINK["Thinks, then answers"]
-    EFFORT["🎚️ effort (output_config)<br/>primary, calibrated dial"] -.->|"biases the decision"| ADAPT
-    MAXT["🧢 max_tokens<br/>hard cap: thinking + answer COMBINED"] -.->|"bounds total spend"| THINK
+    EFFORT["🎚️ effort (output_config): primary, calibrated dial"] -.->|"biases the decision"| ADAPT
+    MAXT["🧢 max_tokens: hard cap: thinking + answer COMBINED"] -.->|"bounds total spend"| THINK
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     classDef a fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
     class REQ,ADAPT q
     class NOTHINK,THINK,EFFORT,MAXT a
 ```
 
-**Cost control — know cold (a favorite trap):**
-- **You do *not* set a thinking-token budget.** Two controls bound cost: **`max_tokens`** is a hard cap on **thinking + response combined** (Claude never exceeds it), and **`effort`** is soft guidance on how much of that budget goes to thinking. (The legacy manual `budget_tokens` is gone on current models.)
-- Because thinking counts toward `max_tokens`, a cap sized for a no-thinking answer is **often too small** once the model thinks — you hit `stop_reason: "max_tokens"` mid-thought. Remedy: **raise `max_tokens`** (if the reasoning was needed) *or* **lower `effort`** (if it over-thought). Which one depends on whether quality on those requests actually needed the reasoning.
-- **You're billed for the full thinking tokens even when the visible output is summarized/omitted.** Read `usage.output_tokens_details.thinking_tokens` to see how much of `output_tokens` was reasoning — an observability signal, not a separate billing line.
-- **Effort is part of the cache key.** Changing `effort` (or the thinking config) between requests **invalidates prompt caching**, because the resolved effort is rendered into the prompt — same failure class as switching model mid-session ([F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md)). **Pick effort per conversation and hold it**; steer individual turns with per-message prompting, which leaves earlier cache breakpoints intact. (Setting `effort` explicitly to the model's default == omitting it; no cache break.)
+**Cost control:**
+- **There is no separate thinking-token budget.** `max_tokens` limits **thinking and response combined**, while `effort` guides how much reasoning to use. Current models no longer use manual `budget_tokens`.
+- A limit sized for a direct answer may be too small when Claude thinks, causing `stop_reason: "max_tokens"`. Raise `max_tokens` when the reasoning is needed, or lower `effort` when it is not.
+- **All thinking tokens are billed**, even when they are hidden or summarized. Check `usage.output_tokens_details.thinking_tokens` to measure them.
+- **Effort is part of the cache key.** Changing effort or thinking settings invalidates the prompt cache, like switching models ([F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md)). Keep effort stable within a conversation and guide individual turns through messages. Setting the explicit default is equivalent to omitting it.
 
 ## Prompt architecture
 
@@ -86,9 +86,9 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph GOOD["✅ Cache-friendly layout"]
-        A1["1. Static system prompt"] --> A2["2. Policy docs / schemas / examples<br/>(stable across requests)"] --> A3["3. Dynamic user content LAST"]
+        A1["1. Static system prompt"] --> A2["2. Policy docs / schemas / examples (stable across requests)"] --> A3["3. Dynamic user content LAST"]
     end
-    A2 -. "cache breakpoint" .-> HIT["♻️ Repeated prefix served from cache:<br/>lower cost + faster time-to-first-token"]
+    A2 -. "cache breakpoint" .-> HIT["♻️ Repeated prefix served from cache: lower cost + faster time-to-first-token"]
     subgraph BAD["❌ Cache-hostile layout"]
         B1["timestamp / user ID first"] --> B2["static policy after dynamic content"]
     end
@@ -100,24 +100,24 @@ flowchart LR
     class B1,B2,MISS bad
 ```
 
-**Know cold (official sample 2):** an app resending an 8,000-token static prompt + policy doc per request, latency *and* cost both hurting → **order stable content first + enable prompt caching**. Truncation loses needed policy; moving content into few-shot blocks doesn't create a cacheable prefix.
+**Key point:** If every request sends the same large prompt and policy document, place stable content first and enable prompt caching. Truncation loses policy details, while few-shot formatting does not create a reusable prefix.
 
-**The API-level numbers** ([platform: prompt-caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)) — Claude Code manages caching for you ([F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md)), but on the Messages API you place breakpoints yourself, and these are the figures an exam can quote:
+**The API-level numbers** ([platform: prompt-caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)) - Claude Code manages caching for you ([F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md)), but on the Messages API you place breakpoints yourself, and these are the figures an exam can quote:
 
 | Knob | Value |
 |---|---|
-| Breakpoint type | `cache_control: {type: "ephemeral"}` — the only type |
+| Breakpoint type | `cache_control: {type: "ephemeral"}` - the only type |
 | Max explicit breakpoints | **4** per request |
 | Default TTL | **5 minutes**; optional **1-hour** at higher write cost |
-| Min cacheable prompt | **1,024 tokens** (Opus 4.8 / Sonnet 5); **512** (Fable 5 / Mythos 5); **4,096** (Haiku 4.5) — below the floor, nothing caches |
+| Min cacheable prompt | **1,024 tokens** (Opus 4.8 / Sonnet 5); **512** (Fable 5 / Mythos 5); **4,096** (Haiku 4.5) - below the floor, nothing caches |
 | **Cache write** price | **1.25×** base input (5-min) · **2×** (1-hour) |
 | **Cache read** price | **0.1×** base input (the ~90% saving) |
 | What's cacheable | `tools` · `system` · `messages` (text, images, documents, tool calls/results) |
 
-**Know cold — the mechanics that drive design:**
+**Important cache mechanics:**
 - **Invalidation is hierarchical: `tools` → `system` → `messages`.** A change high in the prefix busts everything after it. Changing **tool definitions** invalidates the entire cache; toggling tools/citations invalidates system + messages; `tool_choice` or image changes invalidate only messages. This is *why* the layout diagram orders static→dynamic: put the most stable content (tools, system, policy) first so the volatile user turn is all that recomputes.
-- **The write→read ratio is the whole economics.** You pay **1.25×** once to write, then **0.1×** on every hit — so caching wins only when the same prefix is reused enough to amortize the write. A prefix that changes every request (timestamp/user-ID first) pays the write penalty for **zero** reads — strictly worse than not caching.
-- **`effort` and thinking config are part of the cache key** (see the thinking section above) — hold them steady across a conversation.
+- **The write-to-read ratio determines savings.** A five-minute cache write costs **1.25×**, while each read costs **0.1×**. Caching helps only when the prefix is reused enough. A prefix that changes every request pays the write cost without receiving any reads.
+- **`effort` and thinking config are part of the cache key** (see the thinking section above) - hold them steady across a conversation.
 - Track it with `cache_creation_input_tokens` (write) vs `cache_read_input_tokens` (read): persistently high creation = something keeps changing your prefix.
 
 ## Context window & token optimization
@@ -134,7 +134,7 @@ flowchart LR
 | **Modular prompts** | Composable template fragments (role + policy + task + format) | Many similar workflows share components |
 | **Skills** | Packaged instructions + resources loaded on demand | Task-specific workflows teams reuse; keep always-on context lean |
 
-**Know cold:** Skills load on demand vs CLAUDE.md/system prompts always loaded: reuse *and* token hygiene at once (bridges [F-D3 Sec. 3.2](../../CCA-F/domains/d3-claude-code.md)).
+**Key point:** Skills load only when needed, while CLAUDE.md and system prompts are always present. This supports reuse without filling every context ([F-D3 Sec. 3.2](../../CCA-F/domains/d3-claude-code.md)).
 
 ---
 
@@ -151,7 +151,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 
 <details><summary>Answer & rationale</summary>
 
-**C.** Ordering stable content first and enabling prompt caching lets repeated prefixes be reused, reducing both time-to-first-token and per-request cost without discarding required context. A loses needed policy; B risks quality blindly; D does not create a cacheable, reusable prefix.
+**C.** Stable-prefix caching reduces both time-to-first-token and request cost without removing required context. A loses policy details, B risks quality without testing, and D does not create a reusable prefix.
 </details>
 
 ## Extra practice (unofficial)
@@ -165,7 +165,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 
 <details><summary>Answer & rationale</summary>
 
-**B.** This is the tiering pattern in its clearest form: route by measured difficulty, cheap model first, escalate the hard cases. A wastes cost and latency at massive volume on a simple task; C ignores that volume and difficulty differ sharply between the two steps; D inverts the mapping: classification is the simple high-volume step here, not the high-stakes one.
+**B.** Route by measured difficulty: use the cheaper model first and escalate hard cases. A wastes cost on a simple high-volume task. C ignores the different difficulty of the two stages. D assigns the model tiers in the wrong order.
 </details>
 
 **P2.** Twelve internal teams each want Claude Code to run their own multi-step deployment checklist, complete with example transcripts. Loading all twelve into every session's system prompt would triple the always-on context. What's the best reuse strategy?
@@ -177,7 +177,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 
 <details><summary>Answer & rationale</summary>
 
-**C.** Skills load on demand instead of sitting always-on like a system prompt or CLAUDE.md, exactly the fit for task-specific workflows that aren't all needed in every session. A still keeps all twelve resident in context (just cheaper per token); B and D both bloat the always-on context exactly as the problem describes.
+**C.** Skills load only when needed, which fits team-specific workflows. A keeps all procedures in context. B and D also make the always-loaded context too large.
 </details>
 
 **P3.** An extraction agent using a highly capable model produces correctly-formatted output on clear-cut documents, but its output format becomes inconsistent on ambiguous edge-case documents (handwritten annotations, non-standard layouts). What's the most targeted fix?
@@ -189,7 +189,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Few-shot examples target format consistency and ambiguous-case judgment directly, which is exactly this failure pattern. CoT (A) addresses multi-step reasoning failures, not formatting drift; the model is already capable, so C doesn't address a technique gap; D is untargeted and doesn't address the specific ambiguous-case pattern.
+**B.** Few-shot examples directly show the correct format for unclear cases. Chain-of-thought addresses reasoning, not formatting. A larger model or more formal prompt does not target this failure.
 </details>
 
 **P4.** A multi-turn support agent pastes the full raw JSON response from every tool call into its context, including internal metadata fields never used downstream. After 15 turns, the agent starts losing track of the customer's original request, stated back in turn 1. What would most directly help?
@@ -201,7 +201,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Trim verbose tool outputs to relevant fields, and persist key facts in structured, position-aware blocks instead of leaving them to the lost-in-the-middle effect. A treats a symptom without removing the actual token waste or fixing retrievability; C over-compresses and risks losing the specific facts that need to survive; D doesn't address context management at all.
+**B.** Keep only relevant tool fields and place key facts in a clear persistent block. A increases capacity without removing waste. C may remove important details. D does not address context use.
 </details>
 
 **P5.** A reasoning-heavy agent runs with adaptive thinking at `high` effort. On the hardest requests it returns truncated answers with `stop_reason: "max_tokens"`; those requests genuinely need the deep reasoning. `max_tokens` is set to the size of a typical no-thinking answer. What's the most direct fix?
@@ -213,7 +213,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 
 <details><summary>Answer & rationale</summary>
 
-**B.** There is no separate thinking budget — `max_tokens` is a hard cap on **thinking + response combined**, so a cap sized for a no-thinking answer truncates once the model reasons. Because these requests genuinely need the reasoning, raise the cap. A names a control that doesn't exist on current models (the legacy `budget_tokens` is gone); C would drop the reasoning these hard cases require (the right lever only when the model is *over*-thinking); D changes tier without addressing the token-budget cause. Note: changing `effort` would also break prompt caching mid-conversation.
+**B.** `max_tokens` limits thinking and response together. Because these requests need the reasoning, increase the limit rather than lowering effort.
 </details>
 
 ## Exam focus
@@ -226,7 +226,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 | "High volume, simple task, cost pressure" | Smaller tier + measure with evals |
 | "Reuse across teams without bloating every prompt" | Skills / modular prompts |
 | "Truncated answers, `stop_reason: max_tokens`, thinking on" | Raise `max_tokens` (thinking+answer share it); no separate budget |
-| "Reasoning depth without a bigger model" | Raise `effort` — a dial orthogonal to model choice |
-| "Cost jumped after tuning thinking per turn" | Changing `effort`/thinking config busts the cache — hold it steady |
+| "Reasoning depth without a bigger model" | Raise `effort` - a dial orthogonal to model choice |
+| "Cost jumped after tuning thinking per turn" | Changing `effort`/thinking config busts the cache - hold it steady |
 
 **Practice:** [claude-cookbooks `extended_thinking` + `skills`](https://github.com/anthropics/claude-cookbooks) · [anthropics/courses prompt engineering tutorial](https://github.com/anthropics/courses) · [Claude docs: prompt caching](https://platform.claude.com/docs).

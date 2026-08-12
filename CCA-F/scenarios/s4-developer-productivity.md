@@ -1,25 +1,25 @@
 # Scenario ④ · Developer Productivity with Claude
 
-> **Official brief:** You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools (**Read, Write, Bash, Grep, Glob**) and integrates with MCP servers.
+> **Official brief:** Build a developer tool with the Claude Agent SDK. It helps engineers explore unfamiliar code, understand legacy systems, generate boilerplate, and automate repeated work. It uses **Read, Write, Bash, Grep, and Glob** and connects to MCP servers.
 
 **Primary domains:** [D2 Tool Design & MCP](../domains/d2-tool-design-mcp.md) · [D3 Claude Code Config & Workflows](../domains/d3-claude-code.md) · [D1 Agentic Architecture](../domains/d1-agentic-architecture.md)
 
-*No official sample questions exist for this scenario; the exam guide's 12 samples cover scenarios ①②③⑤. Practice questions below are unofficial, written against the official task statements.*
+*The official samples do not cover this scenario. The questions below follow the official task statements.*
 
 ## Reference architecture
 
 ```mermaid
 flowchart TD
-    DEV["👩‍💻 Engineer"] --> AG["🤖 Productivity agent<br/>(Agent SDK)"]
+    DEV["👩‍💻 Engineer"] --> AG["🤖 Productivity agent (Agent SDK)"]
     AG --> BI["🧰 Built-in tools"]
     BI --> GR["Grep: content search"]
     BI --> GL["Glob: filename patterns"]
     BI --> RD["Read / Write / Edit"]
     BI --> BA["Bash"]
-    AG --> MCP["🔌 MCP servers<br/>Jira · CI · docs · DB schemas"]
-    MCP --> RES["MCP resources: content catalogs<br/>(no exploratory tool calls needed)"]
-    AG --> SUB["🤖 Subagents for verbose exploration<br/>('find all test files', 'trace refund flow')"]
-    SUB --> SP["📝 Scratchpad files:<br/>findings persist across context limits"]
+    AG --> MCP["🔌 MCP servers: Jira · CI · docs · DB schemas"]
+    MCP --> RES["MCP resources: content catalogs (no exploratory tool calls needed)"]
+    AG --> SUB["🤖 Subagents for verbose exploration ('find all test files', 'trace refund flow')"]
+    SUB --> SP["📝 Scratchpad files: findings persist across context limits"]
     classDef agent fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef tool fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef cc fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
@@ -34,11 +34,11 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    START["Unfamiliar codebase"] --> G1["1️⃣ Grep for entry points<br/>(function names, routes, imports)"]
-    G1 --> R1["2️⃣ Read to follow imports<br/>and trace flows"]
-    R1 --> S1["3️⃣ Spawn subagents for<br/>verbose deep-dives"]
-    S1 --> SC["4️⃣ Record findings in scratchpad;<br/>summarize before next phase"]
-    START -. "❌ anti-pattern" .-> BAD["Read every file upfront:<br/>context exhaustion"]
+    START["Unfamiliar codebase"] --> G1["1️⃣ Grep for entry points (function names, routes, imports)"]
+    G1 --> R1["2️⃣ Read to follow imports and trace flows"]
+    R1 --> S1["3️⃣ Spawn subagents for verbose deep-dives"]
+    S1 --> SC["4️⃣ Record findings in scratchpad; summarize before next phase"]
+    START -. "❌ anti-pattern" .-> BAD["Read every file upfront: context exhaustion"]
     classDef step fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef bad fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px

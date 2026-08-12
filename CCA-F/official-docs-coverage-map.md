@@ -5,12 +5,12 @@ A working index that maps the **exam-relevant** pages of the official Claude Cod
 ```mermaid
 flowchart LR
     subgraph DOCS["code.claude.com/docs (170 pages)"]
-        A["agents · sub-agents · workflows<br/>agent-teams · agent-view · worktrees"]
-        B["mcp · custom-tools · tool-search<br/>tools-reference"]
-        C["memory · settings · commands · skills<br/>hooks · plugins · permissions · CI"]
-        D["structured-outputs · output-styles<br/>system-prompts · batch"]
-        E["context-window · prompt-caching<br/>checkpointing · sessions · costs"]
-        X["gateways · bedrock/vertex · billing<br/>IDE setup · what's-new · admin"]
+        A["agents · sub-agents · workflows agent-teams · agent-view · worktrees"]
+        B["mcp · custom-tools · tool-search tools-reference"]
+        C["memory · settings · commands · skills hooks · plugins · permissions · CI"]
+        D["structured-outputs · output-styles system-prompts · batch"]
+        E["context-window · prompt-caching checkpointing · sessions · costs"]
+        X["gateways · bedrock/vertex · billing IDE setup · what's-new · admin"]
     end
     A --> D1["d1 · Agentic Architecture"]
     B --> D2["d2 · Tool Design & MCP"]
@@ -82,10 +82,10 @@ flowchart LR
 | `costs`, `agent-sdk/cost-tracking` | Sec. 5.11 |
 | error propagation / provenance (exam-guide) | Sec. 5.3, Sec. 5.6 |
 
-## Out of scope (not exam-tested — deliberately skipped)
+## Out of scope (not exam-tested - deliberately skipped)
 Deployment & providers (`amazon-bedrock`, `google-vertex-ai`, `microsoft-foundry`, `claude-apps-gateway*`, `llm-gateway*`, `corporate-launcher`, `network-config`) · billing/admin (`costs` detail, `analytics`, `admin-setup`, `monitoring-usage`) · IDE & platform setup (`vs-code`, `jetbrains`, `desktop*`, `mobile`, `chrome`, `terminal-config`) · `whats-new/*` weeklies · `changelog` · `champion-kit`, `communications-kit`, `accessibility`, `legal-and-compliance`, `zero-data-retention`.
 
-> These may matter for **CCA-P** (governance, integration, deployment topologies) — see the CCA-P domain files. This map is scoped to **CCA-F**.
+> These may matter for **CCA-P** (governance, integration, deployment topologies) - see the CCA-P domain files. This map is scoped to **CCA-F**.
 
 ## Pages that fed CCA-P (governance / model judgment)
 The settings sweep also pushed material into CCA-P, where it fits better than CCA-F:
@@ -96,7 +96,7 @@ The settings sweep also pushed material into CCA-P, where it fits better than CC
 
 ---
 
-## Platform-docs sweep ([platform.claude.com/docs](https://platform.claude.com/docs), the API side — full index at [`/docs/llms.txt`](https://platform.claude.com/docs/llms.txt))
+## Platform-docs sweep ([platform.claude.com/docs](https://platform.claude.com/docs), the API side - full index at [`/docs/llms.txt`](https://platform.claude.com/docs/llms.txt))
 
 A separate doc site from code.claude.com. It's the **Developer Platform / Messages API** surface, so it feeds **CCA-P** (the Platform exam) far more than CCA-F. This table records where the platform sweep landed.
 
@@ -119,4 +119,4 @@ A separate doc site from code.claude.com. It's the **Developer Platform / Messag
 | `agents-and-tools/tool-use/tool-search-tool` | [F-D2 Sec. 2.6](domains/d2-tool-design-mcp.md) (from the SDK page) |
 | `build-with-claude/batch-processing`, `structured-outputs` | [F-D4](domains/d4-prompting-structured-output.md) |
 
-**Deliberately skipped (—):** `manage-claude/*` admin/compliance/WIF-provider detail, cloud-platform deploy pages, per-SDK reference — operational, not concept-tested.
+**Deliberately skipped (-):** `manage-claude/*` admin/compliance/WIF-provider detail, cloud-platform deploy pages, per-SDK reference - operational, not concept-tested.

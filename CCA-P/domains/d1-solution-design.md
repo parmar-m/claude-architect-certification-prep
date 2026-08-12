@@ -1,6 +1,6 @@
 # P-D1 · Solution Design & Architecture (17%)
 
-Turning a business problem into a Claude-based architecture: choosing the right pattern (workflow vs agentic vs augmented LLM), designing the end-to-end flow, and tying it back to business value.
+Turning a business problem into a Claude architecture: choose the right pattern, design the full flow, and connect it to business value.
 
 **Builds on CCA-F:** [F-D1 Agentic Architecture](../../CCA-F/domains/d1-agentic-architecture.md) (orchestration mechanics).
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 1 objectives; prep course "Claude Platform & Solution Design".
@@ -9,15 +9,15 @@ Turning a business problem into a Claude-based architecture: choosing the right 
 
 ## End-to-end architecture shape
 
-Every solution the exam asks you to design decomposes into the same skeleton; know where each concern lives:
+Most exam solutions follow the same structure. Know where each concern belongs:
 
 ```mermaid
 flowchart LR
-    IN["📥 Input<br/>tickets, docs, queries,<br/>events, code"] --> PRE["Pre-processing<br/>validation · routing ·<br/>PII scrubbing"]
-    PRE --> CORE["🧠 Claude core<br/>prompt + context + tools<br/>(pattern choice lives here)"]
-    CORE --> POST["Post-processing<br/>schema validation ·<br/>guardrails · formatting"]
-    POST --> OUT["📤 Output<br/>actions, drafts,<br/>structured data"]
-    OUT --> FB["🔁 Feedback loop<br/>evals · user signals ·<br/>monitoring → prompt/data updates"]
+    IN["📥 Input: tickets, docs, queries, events, code"] --> PRE["Pre-processing: validation · routing · PII scrubbing"]
+    PRE --> CORE["🧠 Claude core: prompt + context + tools (pattern choice lives here)"]
+    CORE --> POST["Post-processing: schema validation · guardrails · formatting"]
+    POST --> OUT["📤 Output: actions, drafts, structured data"]
+    OUT --> FB["🔁 Feedback loop: evals · user signals · monitoring → prompt/data updates"]
     FB --> CORE
     classDef core fill:#303F9F,color:#fff,stroke:#1A237E,stroke-width:2px
     classDef stage fill:#5C6BC0,color:#fff,stroke:#303F9F,stroke-width:2px
@@ -31,11 +31,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Q{Is the sequence of steps<br/>known in advance?} -- yes --> W["⛓️ Workflow<br/>fixed pipeline of LLM calls<br/>predictable · testable · cheapest"]
-    Q -- no --> Q2{Does the model need to<br/>decide actions dynamically<br/>with tools?}
-    Q2 -- yes --> A["🤖 Agentic<br/>model-driven loop with tools<br/>flexible · higher cost/latency ·<br/>needs guardrails + observability"]
-    Q2 -- "no, just needs<br/>external knowledge" --> AL["📚 Augmented LLM<br/>single call + retrieval/tools<br/>(RAG), grounded answers"]
-    W --> RULE["Rule of thumb: choose the<br/>SIMPLEST pattern that meets<br/>requirements; agents are the<br/>exception, not the default"]
+    Q{"Is the sequence of steps known in advance?"} -- yes --> W["⛓️ Workflow: fixed pipeline of LLM calls: predictable · testable · cheapest"]
+    Q -- no --> Q2{"Does the model need to decide actions dynamically with tools?"}
+    Q2 -- yes --> A["🤖 Agentic: model-driven loop with tools: flexible · higher cost/latency · needs guardrails + observability"]
+    Q2 -- "no, just needs external knowledge" --> AL["📚 Augmented LLM: single call + retrieval/tools (RAG), grounded answers"]
+    W --> RULE["Rule of thumb: choose the SIMPLEST pattern that meets requirements; agents are the exception, not the default"]
     A --> RULE
     AL --> RULE
     classDef w fill:#5C6BC0,color:#fff,stroke:#303F9F,stroke-width:2px
@@ -46,19 +46,19 @@ flowchart TD
     class Q,Q2,RULE n
 ```
 
-**Know cold:**
-- **Workflow**: deterministic orchestration, LLM used per-step (classify → extract → draft). Best when auditability and predictable cost matter.
-- **Agentic**: the model plans and acts in a loop (see [F-D1 Sec. 1.1](../../CCA-F/domains/d1-agentic-architecture.md)). Justify it with genuine run-time ambiguity, not enthusiasm.
-- **Augmented LLM**: one model call enriched with retrieval or tool results; the RAG default for Q&A/knowledge tasks.
-- Exam questions often hide the answer in a phrase like "steps are always the same" (→ workflow) or "the set of actions depends on what it finds" (→ agentic).
+**Key points:**
+- **Workflow:** A fixed sequence with an LLM at each step, such as classify → extract → draft. Use it when auditability and predictable cost matter.
+- **Agentic:** The model plans and acts in a loop (see [F-D1 Sec. 1.1](../../CCA-F/domains/d1-agentic-architecture.md)). Use it only when decisions must adapt during the task.
+- **Augmented LLM:** One model call supported by retrieved information or tool results. This is the common RAG pattern for Q&A and knowledge tasks.
+- Phrases often reveal the answer. "Steps are always the same" suggests a workflow. "Actions depend on what it finds" suggests an agent.
 
 ## Multi-agent orchestration & decomposition
 
-Same principles as CCA-F, elevated to design level:
+Apply the CCA-F principles at the solution-design level:
 
 - Hub-and-spoke coordination, isolated subagent contexts, explicit context passing, parallel delegation ([F-D1 Sec. 1.2–1.3](../../CCA-F/domains/d1-agentic-architecture.md)).
-- **When to go multi-agent:** the task has separable specializations (search vs analysis vs synthesis), a single context can't hold the working set, or roles need different tool permissions.
-- **When not to:** a single agent with a good prompt and scoped tools meets requirements; multi-agent adds latency, cost, and failure surface.
+- **Use multiple agents when:** The task has separate specialities, one context cannot hold the work, or roles need different tool permissions.
+- **Do not use them when:** One agent with a clear prompt and scoped tools is enough. Multiple agents add cost, delay, and more failure points.
 - Decomposition techniques: split by sub-problem, by document/data partition, or by pipeline stage; fixed chains for predictable flows, dynamic decomposition for open-ended ones ([F-D1 Sec. 1.6](../../CCA-F/domains/d1-agentic-architecture.md)).
 
 ## Business value pillars
@@ -85,7 +85,7 @@ mindmap
       availability targets
 ```
 
-**Know cold:** a technically elegant design that misses the stated pillar (e.g. optimizing latency when the driver is cost) is a wrong answer. Anchor every trade-off to the business goal given in the stem.
+**Key point:** A technically strong design is still wrong if it ignores the stated business goal. Connect every trade-off to the value pillar in the question.
 
 ---
 
@@ -102,7 +102,7 @@ mindmap
 
 <details><summary>Answer & rationale</summary>
 
-**B.** The sequence never varies ("always the same"), which is the textbook workflow case. Agentic (A) and multi-agent (D) add flexibility and cost the task doesn't need; augmented LLM (C) collapses a multi-step extract-then-draft-then-format pipeline into one call, losing the auditability of discrete steps.
+**B.** The steps are always the same, so a workflow fits. Agentic (A) and multi-agent (D) add unnecessary cost and flexibility. One augmented call (C) would remove the clear, auditable stages.
 </details>
 
 **P2.** Stakeholders asked for a solution that minimizes infrastructure cost above all else. Your team proposes adding a verification pass with a larger model at every step, improving accuracy by 4% but roughly doubling per-request cost. Is this the right recommendation?
@@ -114,7 +114,7 @@ mindmap
 
 <details><summary>Answer & rationale</summary>
 
-**B.** A technically elegant design that misses the stated pillar is a wrong answer; the stem named cost, not accuracy, as the driver. A and C ignore the stated priority entirely; D still doesn't address the mismatch and introduces another cost-increasing change.
+**B.** Cost is the stated priority, not maximum accuracy. A and C ignore that goal. D also raises cost without addressing the mismatch.
 </details>
 
 **P3.** A support-ticket summarization task needs to read one ticket, pull the customer's order history, and write a one-paragraph summary. A vendor proposes a 4-agent system (router, ticket-reader, order-history-lookup, and writer) coordinated by a hub agent. What's the most defensible critique?
@@ -126,7 +126,7 @@ mindmap
 
 <details><summary>Answer & rationale</summary>
 
-**B.** A single agent with a good prompt and scoped tools meets requirements when the task has no separable specialization, parallelizable sub-problem, or context-size pressure, and this task has none of those. A endorses the over-engineering; C and D add or rearrange agents instead of questioning whether multi-agent is justified at all.
+**B.** The task has no separate speciality, parallel work, or context pressure. One agent with two scoped tools is enough. A accepts the unnecessary design, while C and D add more agent complexity.
 </details>
 
 **P4.** A code-review agent receives raw PR diffs, must strip out generated/vendored files before analysis, and its final output must pass a JSON-schema validator before posting to GitHub. Where do "strip out generated/vendored files" and "JSON-schema validation" belong in the architecture?
@@ -138,7 +138,7 @@ mindmap
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Input filtering/normalization is pre-processing, before the model call; output structural checks are post-processing, after. Doing both inside the model call (A) relies on probabilistic compliance for concerns that should be deterministic; C wastes tokens feeding the model content that should never have reached it; D confuses ongoing pipeline stages with the separate feedback/monitoring loop.
+**B.** Filter input before the model call and validate output afterward. A relies on model compliance for fixed checks. C sends unnecessary files to the model. D confuses pipeline stages with monitoring.
 </details>
 
 **P5.** A document-processing pipeline always performs the same four steps in the same order for every document: OCR → classify → extract → validate. A separate research task must explore an open-ended set of sub-questions whose number and order can't be known upfront. How should each be decomposed?
@@ -150,7 +150,7 @@ mindmap
 
 <details><summary>Answer & rationale</summary>
 
-**B.** Fixed chains fit predictable flows; dynamic decomposition fits open-ended ones. A ignores that a predictable pipeline doesn't need dynamic overhead; C under-serves the genuinely open-ended research task; D confuses content variability with step-sequence variability; the steps stay fixed even though document content differs.
+**B.** Use fixed chains for known steps and dynamic decomposition for open-ended work. A adds unnecessary overhead. C cannot adapt to the research task. D confuses changing content with changing steps.
 </details>
 
 ## Exam focus
