@@ -10,11 +10,11 @@ Discovery, trade-off communication, expectation management (including SLAs), doc
 
 ```mermaid
 flowchart LR
-    DISC["1️⃣ Discovery<br/>structured requirements:<br/>users · data · constraints ·<br/>success criteria · risk appetite"] --> DES["2️⃣ Design<br/>architecture + trade-offs<br/>communicated & signed off"]
-    DES --> BUILD["3️⃣ Build & validate<br/>prototype → evals →<br/>stakeholder feedback loops"]
-    BUILD --> HAND["4️⃣ Handoff<br/>docs · runbooks ·<br/>implementation guidance ·<br/>enablement"]
-    HAND --> MON["5️⃣ Monitoring<br/>SLAs · quality dashboards ·<br/>incident paths"]
-    MON --> IT["6️⃣ Iteration<br/>feedback → backlog →<br/>prompt/model/data updates"]
+    DISC["1️⃣ Discovery: structured requirements: users · data · constraints · success criteria · risk appetite"] --> DES["2️⃣ Design: architecture + trade-offs communicated & signed off"]
+    DES --> BUILD["3️⃣ Build & validate: prototype → evals → stakeholder feedback loops"]
+    BUILD --> HAND["4️⃣ Handoff: docs · runbooks · implementation guidance · enablement"]
+    HAND --> MON["5️⃣ Monitoring: SLAs · quality dashboards · incident paths"]
+    MON --> IT["6️⃣ Iteration: feedback → backlog → prompt/model/data updates"]
     IT --> DISC
     classDef ph fill:#C2185B,color:#fff,stroke:#880E4F,stroke-width:2px
     class DISC,DES,BUILD,HAND,MON,IT ph
@@ -32,10 +32,10 @@ flowchart LR
 ```mermaid
 flowchart TD
     TO["Architectural trade-off"] --> AUD{Audience}
-    AUD -- "executives" --> EX["Business terms:<br/>value pillar impact, risk,<br/>cost curve, time-to-market"]
-    AUD -- "engineering" --> EN["Technical terms:<br/>latency budgets, failure modes,<br/>integration surface"]
-    AUD -- "legal / compliance" --> LG["Data flows, regimes,<br/>controls, audit evidence"]
-    EX & EN & LG --> REC["One recommendation +<br/>explicit alternatives considered +<br/>why they lost; never a menu<br/>without a stance"]
+    AUD -- "executives" --> EX["Business terms: value pillar impact, risk, cost curve, time-to-market"]
+    AUD -- "engineering" --> EN["Technical terms: latency budgets, failure modes, integration surface"]
+    AUD -- "legal / compliance" --> LG["Data flows, regimes, controls, audit evidence"]
+    EX & EN & LG --> REC["One recommendation + explicit alternatives considered + why they lost; never a menu without a stance"]
     classDef aud fill:#C2185B,color:#fff,stroke:#880E4F,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class EX,EN,LG,REC aud

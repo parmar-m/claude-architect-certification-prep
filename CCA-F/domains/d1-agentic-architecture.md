@@ -71,12 +71,12 @@ The `stop_reason` loop above governs a single turn, not the session. To keep a s
 
 ```mermaid
 flowchart TD
-    Q[User query] --> CO["🧠 Coordinator<br/>decompose · delegate · synthesize"]
-    CO --> S1["🔎 Web search<br/>subagent"]
-    CO --> S2["📄 Document analysis<br/>subagent"]
+    Q[User query] --> CO["🧠 Coordinator: decompose · delegate · synthesize"]
+    CO --> S1["🔎 Web search subagent"]
+    CO --> S2["📄 Document analysis subagent"]
     S1 --> CO
     S2 --> CO
-    CO --> S3["📎 Citation<br/>subagent"]
+    CO --> S3["📎 Citation subagent"]
     S3 --> CO
     CO --> R[Final report]
     classDef co fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
@@ -111,32 +111,32 @@ A subagent works like a git branch: it splits off from the main context with its
 ```mermaid
 sequenceDiagram
     autonumber
-    participant CO as 🧠 Coordinator<br/>(main context)
-    participant A as 🔎 Subagent A<br/>(fresh context)
-    participant B as 📄 Subagent B<br/>(fresh context)
+    participant CO as 🧠 Coordinator (main context)
+    participant A as 🔎 Subagent A (fresh context)
+    participant B as 📄 Subagent B (fresh context)
     participant T as Tools / MCP
 
-    Note over CO: needs the spawn tool in allowedTools,<br/>or it cannot delegate at all
+    Note over CO: needs the spawn tool in allowedTools, or it cannot delegate at all
 
     par both Agent tool calls emitted in ONE coordinator response
-        CO->>A: Agent tool prompt string — the ONLY channel:<br/>objective + quality criteria + every file path,<br/>error and decision it needs
+        CO->>A: Agent tool prompt string — the ONLY channel: objective + quality criteria + every file path, error and decision it needs
     and
         CO->>B: distinct scope — partitioned to avoid duplicate work
     end
 
-    Note over A,B: each starts empty: own history, own context window,<br/>system prompt · tool restrictions · model from AgentDefinition<br/>(SubagentStart fires here)
+    Note over A,B: each starts empty: own history, own context window, system prompt · tool restrictions · model from AgentDefinition (SubagentStart fires here)
 
     A->>T: explore / search / read
     T-->>A: raw results (large)
     B->>T: explore / search / read
     T-->>B: raw results (large)
 
-    Note over A,B: intermediate steps stay here — they never enter<br/>the coordinator's context, and results flow back<br/>only through the coordinator
+    Note over A,B: intermediate steps stay here — they never enter the coordinator's context, and results flow back only through the coordinator
 
     A-->>CO: summary + structured metadata (source URLs, page numbers)
     B-->>CO: summary + structured metadata
 
-    Note over CO: coordinator synthesises.<br/>Its context grew by 2 summaries, not 2 transcripts.<br/>(SubagentStop fires here)
+    Note over CO: coordinator synthesises. Its context grew by 2 summaries, not 2 transcripts. (SubagentStop fires here)
 ```
 
 **Four separate things — don't conflate them:**
@@ -173,10 +173,10 @@ Prompt instructions have a **non-zero failure rate**. When compliance must be gu
 
 ```mermaid
 flowchart LR
-    A[Business rule <br/>eg. Verify identity before any refund] --> B{Failure<br/>tolerable?}
-    B -- "yes: style, tone,<br/>soft guidance" --> P["📝 Prompt instruction<br/>(probabilistic)"]
-    B -- "no: financial ops,<br/>compliance, identity" --> H["🔒 Hook / prerequisite gate<br/>(deterministic)"]
-    H --> EX["e.g. block process_refund until<br/>get_customer returns verified ID"]
+    A["Business rule: eg. Verify identity before any refund"] --> B{"Failure tolerable?"}
+    B -- "yes: style, tone, soft guidance" --> P["📝 Prompt instruction (probabilistic)"]
+    B -- "no: financial ops, compliance, identity" --> H["🔒 Hook / prerequisite gate (deterministic)"]
+    H --> EX["e.g. block process_refund until get_customer returns verified ID"]
     classDef det fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef prob fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
     classDef note fill:#FFF8E1,color:#000,stroke:#FBC02D,stroke-width:1px
@@ -291,7 +291,7 @@ sequenceDiagram
     Note over C,T: Direction 1 — intercept the outgoing call
     C->>H: process_refund($740)
     H--xC: ❌ PreToolUse deny: "over the $500 policy cap"
-    Note over C: The hook cannot redirect.<br/>Claude reads the reason and<br/>calls escalate_to_human itself.
+    Note over C: The hook cannot redirect. Claude reads the reason and calls escalate_to_human itself.
     end
     rect rgba(21, 101, 192, 0.12)
     Note over C,T: Direction 2 — intercept the incoming result
@@ -513,11 +513,11 @@ Getting this backwards is the common failure. A fixed pipeline aimed at an unkno
 
 ```mermaid
 flowchart TD
-    T[Complex workflow] --> Q{Can you name the<br/>subtasks up front?}
-    Q -- yes --> PC["⛓️ Prompt chaining<br/>fixed sequential passes<br/><i>you wrote the plan</i>"]
-    PC --> PCE["e.g. per-file analysis pass<br/>→ cross-file integration pass"]
-    Q -- no --> DD["🧭 Orchestrator-workers<br/>plan built from findings<br/><i>the model wrote the plan</i>"]
-    DD --> DDE["e.g. map structure → rank high-impact areas<br/>→ prioritized plan that adapts"]
+    T[Complex workflow] --> Q{"Can you name the subtasks up front?"}
+    Q -- yes --> PC["⛓️ Prompt chaining: fixed sequential passes: you wrote the plan"]
+    PC --> PCE["e.g. per-file analysis pass → cross-file integration pass"]
+    Q -- no --> DD["🧭 Orchestrator-workers: plan built from findings: the model wrote the plan"]
+    DD --> DDE["e.g. map structure → rank high-impact areas → prioritized plan that adapts"]
     classDef fixed fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef dyn fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     class PC,PCE fixed
@@ -745,11 +745,11 @@ In TypeScript, `persistSession: false` keeps a session in memory for the duratio
 
 ```mermaid
 flowchart TD
-    Q["Work worth<br/>parallelizing"] --> WHO{"Who holds<br/>the plan?"}
-    WHO -- "Claude, inside<br/>ONE conversation" --> SUB["🧩 Subagents<br/>side task in its own context,<br/>returns a summary"]
-    WHO -- "YOU — hand off,<br/>check back later" --> AV["🖥️ Agent view<br/>(claude agents)<br/>dispatch &amp; monitor<br/>background sessions"]
-    WHO -- "Claude as LEAD<br/>over a worker group" --> AT["👥 Agent teams<br/>shared task list +<br/>agents message each other<br/><i>experimental, off by default</i>"]
-    WHO -- "A SCRIPT, across<br/>many passes" --> DW["⚙️ Dynamic workflows<br/>(/workflows)<br/>many subagents,<br/>results cross-checked"]
+    Q["Work worth parallelizing"] --> WHO{"Who holds the plan?"}
+    WHO -- "Claude, inside ONE conversation" --> SUB["🧩 Subagents: side task in its own context, returns a summary"]
+    WHO -- "YOU — hand off, check back later" --> AV["🖥️ Agent view (claude agents): dispatch &amp; monitor background sessions"]
+    WHO -- "Claude as LEAD over a worker group" --> AT["👥 Agent teams: shared task list + agents message each other: experimental, off by default"]
+    WHO -- "A SCRIPT, across many passes" --> DW["⚙️ Dynamic workflows (/workflows): many subagents, results cross-checked"]
     SUB -.->|report to| CONV["the spawning conversation"]
     AV -.->|report to| YOU["only to you"]
     AT -.->|talk to| EACH["each other directly"]

@@ -8,15 +8,15 @@
 
 ```mermaid
 flowchart TD
-    CU["🧑 Customer"] --> AG["🤖 Support agent<br/>(Agent SDK loop on stop_reason)"]
-    AG --> HK["🔒 Hook layer<br/>tool-call interception + PostToolUse"]
+    CU["🧑 Customer"] --> AG["🤖 Support agent (Agent SDK loop on stop_reason)"]
+    AG --> HK["🔒 Hook layer: tool-call interception + PostToolUse"]
     HK --> T1["get_customer"]
     HK --> T2["lookup_order"]
     HK --> T3["process_refund"]
     HK --> T4["escalate_to_human"]
-    T1 & T2 & T3 --> BE[("Backend systems<br/>via MCP")]
-    T4 --> HU["🙋 Human agent<br/>+ structured handoff summary"]
-    HK -. "block refund > $500<br/>gate refund on verified ID" .-> T3
+    T1 & T2 & T3 --> BE[("Backend systems via MCP")]
+    T4 --> HU["🙋 Human agent + structured handoff summary"]
+    HK -. "block refund > $500 gate refund on verified ID" .-> T3
     classDef agent fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef hook fill:#D32F2F,color:#fff,stroke:#B71C1C,stroke-width:2px
     classDef tool fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px

@@ -5,7 +5,7 @@
 ```mermaid
 %%{init: {"themeVariables": {"git0": "#004D40", "gitBranchLabel0": "#ffffff", "cScale0": "#512DA8", "cScale1": "#00796B", "cScale2": "#1976D2", "cScale3": "#E64A19", "cScale4": "#388E3C", "cScaleLabel0": "#ffffff", "cScaleLabel1": "#ffffff", "cScaleLabel2": "#ffffff", "cScaleLabel3": "#ffffff", "cScaleLabel4": "#ffffff"}}}%%
 mindmap
-  root(("🟢 CCA-F<br/>Foundations"))
+  root(("🟢 CCA-F: Foundations"))
     D1 Agentic Architecture and Orchestration 27%
       Agentic loops and stop_reason
       Coordinator-subagent patterns

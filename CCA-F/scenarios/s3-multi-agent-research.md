@@ -8,15 +8,15 @@
 
 ```mermaid
 flowchart TD
-    Q["Research topic"] --> CO["🧠 Coordinator<br/>allowedTools includes 'Task'<br/>decompose → delegate → evaluate gaps → re-delegate"]
-    CO -- "parallel Task calls<br/>in ONE response" --> WS["🔎 Web search agent<br/>scoped: search tools only"]
-    CO --> DA["📄 Document analysis agent<br/>scoped: doc tools only"]
-    CO --> SY["✍️ Synthesis agent<br/>+ scoped verify_fact tool"]
+    Q["Research topic"] --> CO["🧠 Coordinator: allowedTools includes 'Task': decompose → delegate → evaluate gaps → re-delegate"]
+    CO -- "parallel Task calls in ONE response" --> WS["🔎 Web search agent: scoped: search tools only"]
+    CO --> DA["📄 Document analysis agent: scoped: doc tools only"]
+    CO --> SY["✍️ Synthesis agent + scoped verify_fact tool"]
     CO --> RG["📊 Report generator"]
-    WS -- "findings + claim→source<br/>mappings + dates" --> CO
-    DA -- "findings + conflicts<br/>annotated, not resolved" --> CO
-    SY -- "coverage annotations:<br/>supported vs gaps" --> CO
-    RG --> OUT["Cited report:<br/>established vs contested sections"]
+    WS -- "findings + claim→source mappings + dates" --> CO
+    DA -- "findings + conflicts annotated, not resolved" --> CO
+    SY -- "coverage annotations: supported vs gaps" --> CO
+    RG --> OUT["Cited report: established vs contested sections"]
     classDef co fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef sub fill:#7E57C2,color:#fff,stroke:#4527A0,stroke-width:2px
     classDef io fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -34,11 +34,11 @@ sequenceDiagram
     participant WS as Web search subagent
     CO->>WS: Task: research subtopic X
     WS->>WS: query times out → local retry (transient)
-    WS--xCO: structured error: failure type,<br/>attempted query, partial results,<br/>alternative approaches
-    CO->>CO: decide: retry modified query /<br/>alternative source / proceed partial
+    WS--xCO: structured error: failure type, attempted query, partial results, alternative approaches
+    CO->>CO: decide: retry modified query / alternative source / proceed partial
     CO->>WS: Task: retry with narrowed query
     WS-->>CO: results (partial coverage noted)
-    Note over CO: final synthesis annotates<br/>coverage gaps, never silent
+    Note over CO: final synthesis annotates coverage gaps, never silent
 ```
 
 ## Patterns this scenario tests

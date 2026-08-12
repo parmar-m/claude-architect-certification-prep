@@ -23,12 +23,12 @@ Neither is solved by making the agent smarter. Context is a budget, so the answe
 
 ```mermaid
 flowchart TD
-    PROB["Long session risks"] --> R1["📉 Progressive summarization blurs<br/>numbers, %, dates, customer promises"]
-    PROB --> R2["🕳️ Lost in the middle:<br/>start + end processed reliably,<br/>middle findings dropped"]
-    PROB --> R3["🐘 Verbose tool results<br/>(40+ fields when 5 matter)"]
-    R1 --> F1["✅ Persistent 'case facts' block<br/>(amounts, order IDs, statuses)<br/>kept OUTSIDE summarized history"]
-    R2 --> F2["✅ Key findings at the START,<br/>explicit section headers"]
-    R3 --> F3["✅ Trim to relevant fields<br/>BEFORE they enter context"]
+    PROB["Long session risks"] --> R1["📉 Progressive summarization blurs numbers, %, dates, customer promises"]
+    PROB --> R2["🕳️ Lost in the middle: start + end processed reliably, middle findings dropped"]
+    PROB --> R3["🐘 Verbose tool results (40+ fields when 5 matter)"]
+    R1 --> F1["✅ Persistent 'case facts' block (amounts, order IDs, statuses) kept OUTSIDE summarized history"]
+    R2 --> F2["✅ Key findings at the START, explicit section headers"]
+    R3 --> F3["✅ Trim to relevant fields BEFORE they enter context"]
     classDef risk fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px
     classDef fix fill:#388E3C,color:#fff,stroke:#1B5E20,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -50,15 +50,15 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    REQ[Customer request] --> T1{Customer explicitly<br/>demands a human?}
-    T1 -- yes --> ESC["🙋 Escalate immediately,<br/>no investigation first"]
-    T1 -- no --> T2{Policy covers<br/>this case?}
-    T2 -- "ambiguous / silent<br/>(competitor price match)" --> ESC
-    T2 -- yes --> T3{Multiple customer<br/>matches?}
-    T3 -- yes --> CLAR["🔍 Ask for additional identifiers,<br/>never pick heuristically"]
-    T3 -- no --> T4{Meaningful progress<br/>possible?}
+    REQ[Customer request] --> T1{"Customer explicitly demands a human?"}
+    T1 -- yes --> ESC["🙋 Escalate immediately, no investigation first"]
+    T1 -- no --> T2{"Policy covers this case?"}
+    T2 -- "ambiguous / silent (competitor price match)" --> ESC
+    T2 -- yes --> T3{"Multiple customer matches?"}
+    T3 -- yes --> CLAR["🔍 Ask for additional identifiers, never pick heuristically"]
+    T3 -- no --> T4{"Meaningful progress possible?"}
     T4 -- no --> ESC
-    T4 -- yes --> RES["✅ Resolve autonomously<br/>(acknowledge frustration + offer fix;<br/>escalate if customer reiterates)"]
+    T4 -- yes --> RES["✅ Resolve autonomously (acknowledge frustration + offer fix; escalate if customer reiterates)"]
     classDef esc fill:#D32F2F,color:#fff,stroke:#B71C1C,stroke-width:2px
     classDef res fill:#388E3C,color:#fff,stroke:#1B5E20,stroke-width:2px
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -92,12 +92,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    LONG["Extended exploration session"] --> DEG["📉 Context degradation:<br/>inconsistent answers, 'typical patterns'<br/>instead of discovered classes"]
-    DEG --> S1["📝 Scratchpad files persist findings<br/>across context boundaries"]
-    DEG --> S2["🤖 Subagents isolate verbose discovery;<br/>main agent keeps coordination"]
-    DEG --> S3["🧹 /compact when context fills<br/>with discovery noise"]
-    DEG --> S4["📋 Summarize phase N before<br/>spawning phase N+1 subagents"]
-    CRASH["Crash recovery"] --> M["Each agent exports state to a known<br/>location; coordinator loads manifest<br/>on resume"]
+    LONG["Extended exploration session"] --> DEG["📉 Context degradation: inconsistent answers, 'typical patterns' instead of discovered classes"]
+    DEG --> S1["📝 Scratchpad files persist findings across context boundaries"]
+    DEG --> S2["🤖 Subagents isolate verbose discovery; main agent keeps coordination"]
+    DEG --> S3["🧹 /compact when context fills with discovery noise"]
+    DEG --> S4["📋 Summarize phase N before spawning phase N+1 subagents"]
+    CRASH["Crash recovery"] --> M["Each agent exports state to a known location; coordinator loads manifest on resume"]
     classDef bad fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px
     classDef fix fill:#388E3C,color:#fff,stroke:#1B5E20,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -142,12 +142,12 @@ The common thread in every fix: move findings **out of the conversation** — to
 ```mermaid
 flowchart TD
     subgraph W["Context window (ordered for cache stability)"]
-        SYS["1 · System prompt + tool definitions + output style<br/><i>changes only on upgrade / tool-set change</i>"]
-        PROJ["2 · Project context: CLAUDE.md · auto-memory · unscoped rules<br/><i>reloads from disk at session start, /clear, /compact</i>"]
-        CONV["3 · Conversation: your msgs · Claude's replies · tool results<br/><i>changes every turn</i>"]
+        SYS["1 · System prompt + tool definitions + output style: changes only on upgrade / tool-set change"]
+        PROJ["2 · Project context: CLAUDE.md · auto-memory · unscoped rules: reloads from disk at session start, /clear, /compact"]
+        CONV["3 · Conversation: your msgs · Claude's replies · tool results: changes every turn"]
     end
-    CONV --> FULL{"Approaching<br/>the limit?"}
-    FULL -- auto or /compact --> SUM["Summarize conversation →<br/>layers 1–2 reload, layer 3 becomes a summary"]
+    CONV --> FULL{"Approaching the limit?"}
+    FULL -- auto or /compact --> SUM["Summarize conversation → layers 1–2 reload, layer 3 becomes a summary"]
     FULL -- unrelated new task --> CLR["/clear — wipe conversation entirely"]
     classDef stable fill:#388E3C,color:#fff,stroke:#1B5E20,stroke-width:2px
     classDef vol fill:#F9A825,color:#000,stroke:#F57F17,stroke-width:2px
@@ -186,7 +186,7 @@ flowchart LR
     subgraph KEEPS["✅ Cache survives (appends only)"]
         K1["edit files in repo · read files"]
         K2["change permission mode"]
-        K3["invoke skills / commands · /recap<br/><i>(/recap = re-state the thread so far)</i>"]
+        K3["invoke skills / commands · /recap (/recap = re-state the thread so far)"]
         K4["/rewind · spawn a subagent"]
     end
     subgraph BREAKS["❌ Cache invalidates (prefix changes → slow, costly turn)"]

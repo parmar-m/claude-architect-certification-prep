@@ -5,7 +5,7 @@
 ```mermaid
 %%{init: {"themeVariables": {"git0": "#1A237E", "gitBranchLabel0": "#ffffff", "cScale0": "#303F9F", "cScale1": "#00838F", "cScale2": "#1565C0", "cScale3": "#4527A0", "cScale4": "#D32F2F", "cScale5": "#C2185B", "cScale6": "#6D4C41", "cScaleLabel0": "#ffffff", "cScaleLabel1": "#ffffff", "cScaleLabel2": "#ffffff", "cScaleLabel3": "#ffffff", "cScaleLabel4": "#ffffff", "cScaleLabel5": "#ffffff", "cScaleLabel6": "#ffffff"}}}%%
 mindmap
-  root(("🔵 CCA-P<br/>Professional"))
+  root(("🔵 CCA-P: Professional"))
     D1 Solution Design and Architecture 17%
       Business problem → architecture
       Workflow vs agentic vs augmented LLM

@@ -12,13 +12,13 @@ No single layer is sufficient; the exam expects layered controls, with **determi
 
 ```mermaid
 flowchart TD
-    IN["User input"] --> L1["1️⃣ Input controls<br/>validation · PII detection/redaction ·<br/>prompt-injection screening"]
-    L1 --> L2["2️⃣ Model-level controls<br/>system-prompt policies · refusal instructions ·<br/>constrained output schemas"]
-    L2 --> L3["3️⃣ Deterministic enforcement<br/>hooks/gates on tool calls ·<br/>least-privilege tool scoping"]
-    L3 --> L4["4️⃣ Output controls<br/>schema validation · content filters ·<br/>citation/grounding checks"]
-    L4 --> L5["5️⃣ Human-in-the-loop<br/>for high-stakes actions"]
+    IN["User input"] --> L1["1️⃣ Input controls: validation · PII detection/redaction · prompt-injection screening"]
+    L1 --> L2["2️⃣ Model-level controls: system-prompt policies · refusal instructions · constrained output schemas"]
+    L2 --> L3["3️⃣ Deterministic enforcement: hooks/gates on tool calls · least-privilege tool scoping"]
+    L3 --> L4["4️⃣ Output controls: schema validation · content filters · citation/grounding checks"]
+    L4 --> L5["5️⃣ Human-in-the-loop for high-stakes actions"]
     L5 --> OUT["Action / response"]
-    MON["📊 Monitoring, audit logs,<br/>incident response"] -.-> L1 & L2 & L3 & L4 & L5
+    MON["📊 Monitoring, audit logs, incident response"] -.-> L1 & L2 & L3 & L4 & L5
     classDef layer fill:#D32F2F,color:#fff,stroke:#B71C1C,stroke-width:2px
     classDef mon fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class L1,L2,L3,L4,L5 layer
@@ -49,15 +49,15 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph GDPR["🇪🇺 GDPR: personal data (EU)"]
-        G1["lawful basis · data minimization ·<br/>right to erasure · DPAs ·<br/>cross-border transfer rules"]
+        G1["lawful basis · data minimization · right to erasure · DPAs · cross-border transfer rules"]
     end
     subgraph HIPAA["🏥 HIPAA: US health data"]
-        H1["PHI safeguards · BAAs with vendors ·<br/>minimum necessary standard ·<br/>audit trails"]
+        H1["PHI safeguards · BAAs with vendors · minimum necessary standard · audit trails"]
     end
     subgraph FED["🏛️ FedRAMP: US federal cloud"]
-        F1["authorized cloud services ·<br/>impact levels (Low/Moderate/High) ·<br/>continuous monitoring"]
+        F1["authorized cloud services · impact levels (Low/Moderate/High) · continuous monitoring"]
     end
-    ARCH["Architect's job:<br/>data flow mapping → which regime attaches →<br/>controls + vendor agreements + residency"] --> GDPR & HIPAA & FED
+    ARCH["Architect's job: data flow mapping → which regime attaches → controls + vendor agreements + residency"] --> GDPR & HIPAA & FED
     classDef reg fill:#D32F2F,color:#fff,stroke:#B71C1C,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class G1,H1,F1 reg
@@ -78,12 +78,12 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    ADMIN["🔒 Managed / policy settings<br/>(MDM · managed-settings.json · registry)<br/><i>top of precedence — non-overridable</i>"] --> A["Least privilege"]
+    ADMIN["🔒 Managed / policy settings (MDM · managed-settings.json · registry): top of precedence — non-overridable"] --> A["Least privilege"]
     ADMIN --> B["Deterministic enforcement"]
     ADMIN --> C["Accountability & audit"]
-    A --> A1["availableModels + enforceAvailableModels<br/>allowedMcpServers / deniedMcpServers (deny wins)<br/>additionalDirectories scoping"]
-    B --> B1["managed deny rules always win (Sec. 3.8)<br/>disableBypassPermissionsMode · disableAutoMode<br/>allowManagedPermissionRulesOnly"]
-    C --> C1["forceLoginMethod / forceLoginOrgUUID<br/>ConfigChange + audit hooks (Sec. 3.7)<br/>disableSideloadFlags · blockedMarketplaces"]
+    A --> A1["availableModels + enforceAvailableModels allowedMcpServers / deniedMcpServers (deny wins) additionalDirectories scoping"]
+    B --> B1["managed deny rules always win (Sec. 3.8) disableBypassPermissionsMode · disableAutoMode allowManagedPermissionRulesOnly"]
+    C --> C1["forceLoginMethod / forceLoginOrgUUID ConfigChange + audit hooks (Sec. 3.7) disableSideloadFlags · blockedMarketplaces"]
     classDef top fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef layer fill:#D32F2F,color:#fff,stroke:#B71C1C,stroke-width:2px
     classDef ctrl fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px

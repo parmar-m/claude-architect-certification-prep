@@ -102,7 +102,7 @@ flowchart LR
     F5 --> P2
     F5 --> P4
     F3 --> P7
-    NEW["⚠️ New ground, study separately:<br/>RAG pipelines · compliance regimes · eval frameworks<br/>stakeholder & lifecycle management"]
+    NEW["⚠️ New ground, study separately: RAG pipelines · compliance regimes · eval frameworks stakeholder & lifecycle management"]
     NEW -.-> P3
     NEW -.-> P4
     NEW -.-> P5

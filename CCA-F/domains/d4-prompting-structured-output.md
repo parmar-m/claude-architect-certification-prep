@@ -54,10 +54,10 @@ The standing trap is answering the second question with the first. A schema-vali
 
 ```mermaid
 flowchart TD
-    G["Need machine-parseable output"] --> L1["📝 'Return JSON' in the prompt<br/>syntax errors possible"]
-    G --> L2["🛠️ output_config.format<br/>type: json_schema — constrained decoding"]
-    G --> L3["🔒 strict: true on a tool<br/>guarantees tool NAME + INPUT validity"]
-    L2 --> BUT["⚠️ Guarantees SHAPE, not TRUTH:<br/>line items ≠ total, values in the wrong fields"]
+    G["Need machine-parseable output"] --> L1["📝 'Return JSON' in the prompt: syntax errors possible"]
+    G --> L2["🛠️ output_config.format: type: json_schema — constrained decoding"]
+    G --> L3["🔒 strict: true on a tool: guarantees tool NAME + INPUT validity"]
+    L2 --> BUT["⚠️ Guarantees SHAPE, not TRUTH: line items ≠ total, values in the wrong fields"]
     L3 --> BUT
     classDef weak fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
     classDef strong fill:#E64A19,color:#fff,stroke:#BF360C,stroke-width:2px
@@ -98,7 +98,7 @@ sequenceDiagram
     V--xP: ❌ semantic error: line items ≠ total
     P->>C: retry: document + failed extraction + SPECIFIC validation error
     C-->>P: corrected extraction
-    Note over P: Retry helps format/structure errors.<br/>It cannot conjure info absent from the source.
+    Note over P: Retry helps format/structure errors. It cannot conjure info absent from the source.
 ```
 
 - **Retry with the specific error.** Send the document, the failed extraction, and the exact validation message. "That was wrong, try again" gives the model nothing to correct against.
@@ -115,11 +115,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    W{Workflow latency<br/>tolerance?} -- "blocking<br/>(pre-merge check)" --> RT["⚡ Real-time API"]
-    W -- "latency-tolerant<br/>(overnight reports, audits,<br/>nightly test generation)" --> B["📦 Batches API<br/>50% cost savings"]
+    W{"Workflow latency tolerance?"} -- "blocking (pre-merge check)" --> RT["⚡ Real-time API"]
+    W -- "latency-tolerant (overnight reports, audits, nightly test generation)" --> B["📦 Batches API: 50% cost savings"]
     B --> F["Most finish <1h · hard 24h expiry"]
     B --> CID["custom_id correlates request↔response"]
-    F --> RESUB["Failures: resubmit ONLY failed docs<br/>(by custom_id), with fixes,<br/>e.g. chunk docs that exceeded context"]
+    F --> RESUB["Failures: resubmit ONLY failed docs (by custom_id), with fixes, e.g. chunk docs that exceeded context"]
     classDef rt fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
     classDef batch fill:#E64A19,color:#fff,stroke:#BF360C,stroke-width:2px
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -143,10 +143,10 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    GEN["Session that wrote the code"] -. "retains its own reasoning,<br/>won't question its decisions" .-> SELF["❌ self-review"]
-    IND["🔎 Independent instance<br/>(no prior reasoning context)"] --> BETTER["✅ catches subtle issues"]
-    BIG["14-file PR, one pass"] --> DILUTE["❌ attention dilution:<br/>inconsistent depth, contradictions"]
-    SPLIT["Per-file local passes<br/>+ cross-file integration pass"] --> BETTER
+    GEN["Session that wrote the code"] -. "retains its own reasoning, won't question its decisions" .-> SELF["❌ self-review"]
+    IND["🔎 Independent instance (no prior reasoning context)"] --> BETTER["✅ catches subtle issues"]
+    BIG["14-file PR, one pass"] --> DILUTE["❌ attention dilution: inconsistent depth, contradictions"]
+    SPLIT["Per-file local passes + cross-file integration pass"] --> BETTER
     classDef bad fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px
     classDef good fill:#E64A19,color:#fff,stroke:#BF360C,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px

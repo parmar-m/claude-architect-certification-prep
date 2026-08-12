@@ -11,11 +11,11 @@ Model selection trade-offs, prompt architecture (system prompts, templates, guar
 
 ```mermaid
 flowchart TD
-    REQ["Task requirements"] --> C{Reasoning<br/>complexity?}
-    C -- "deep, multi-step,<br/>high-stakes" --> BIG["🏆 Most capable tier<br/>higher cost + latency"]
-    C -- "moderate" --> MID["⚖️ Balanced tier,<br/>the production default"]
-    C -- "high-volume, simple<br/>classify/route/extract" --> SMALL["⚡ Fast/cheap tier"]
-    BIG & MID & SMALL --> TIERING["🏗️ Model tiering: route by difficulty,<br/>cheap model first, escalate hard cases;<br/>or coordinator on big model,<br/>subagents on small"]
+    REQ["Task requirements"] --> C{"Reasoning complexity?"}
+    C -- "deep, multi-step, high-stakes" --> BIG["🏆 Most capable tier: higher cost + latency"]
+    C -- "moderate" --> MID["⚖️ Balanced tier, the production default"]
+    C -- "high-volume, simple classify/route/extract" --> SMALL["⚡ Fast/cheap tier"]
+    BIG & MID & SMALL --> TIERING["🏗️ Model tiering: route by difficulty, cheap model first, escalate hard cases; or coordinator on big model, subagents on small"]
     classDef big fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class BIG,MID,SMALL,TIERING big
@@ -58,11 +58,11 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    REQ["Each request"] --> ADAPT{"Claude weighs<br/>complexity<br/>(adaptive)"}
-    ADAPT -- simple --> NOTHINK["Direct answer<br/><i>no thinking block</i>"]
+    REQ["Each request"] --> ADAPT{"Claude weighs complexity (adaptive)"}
+    ADAPT -- simple --> NOTHINK["Direct answer: no thinking block"]
     ADAPT -- complex --> THINK["Thinks, then answers"]
-    EFFORT["🎚️ effort (output_config)<br/>primary, calibrated dial"] -.->|"biases the decision"| ADAPT
-    MAXT["🧢 max_tokens<br/>hard cap: thinking + answer COMBINED"] -.->|"bounds total spend"| THINK
+    EFFORT["🎚️ effort (output_config): primary, calibrated dial"] -.->|"biases the decision"| ADAPT
+    MAXT["🧢 max_tokens: hard cap: thinking + answer COMBINED"] -.->|"bounds total spend"| THINK
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     classDef a fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
     class REQ,ADAPT q
@@ -86,9 +86,9 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph GOOD["✅ Cache-friendly layout"]
-        A1["1. Static system prompt"] --> A2["2. Policy docs / schemas / examples<br/>(stable across requests)"] --> A3["3. Dynamic user content LAST"]
+        A1["1. Static system prompt"] --> A2["2. Policy docs / schemas / examples (stable across requests)"] --> A3["3. Dynamic user content LAST"]
     end
-    A2 -. "cache breakpoint" .-> HIT["♻️ Repeated prefix served from cache:<br/>lower cost + faster time-to-first-token"]
+    A2 -. "cache breakpoint" .-> HIT["♻️ Repeated prefix served from cache: lower cost + faster time-to-first-token"]
     subgraph BAD["❌ Cache-hostile layout"]
         B1["timestamp / user ID first"] --> B2["static policy after dynamic content"]
     end

@@ -31,12 +31,12 @@ Almost every failure in this domain is that text being wrong, missing, or too cr
 
 ```mermaid
 flowchart TD
-    P["😖 Symptom: agent misroutes between<br/>get_customer and lookup_order"] --> RC{Root cause}
+    P["😖 Symptom: agent misroutes between get_customer and lookup_order"] --> RC{Root cause}
     RC --> D1["Minimal, near-identical descriptions"]
-    D1 --> FIX1["✅ First step: expand descriptions with<br/>input formats, example queries,<br/>edge cases, when-to-use boundaries"]
+    D1 --> FIX1["✅ First step: expand descriptions with input formats, example queries, edge cases, when-to-use boundaries"]
     RC --> D2["Functional overlap between tools"]
-    D2 --> FIX2["✅ Rename + re-scope<br/>(analyze_content → extract_web_results)<br/>or split into purpose-specific tools"]
-    RC --> D3["Keyword-sensitive system prompt<br/>overriding good descriptions"]
+    D2 --> FIX2["✅ Rename + re-scope (analyze_content → extract_web_results) or split into purpose-specific tools"]
+    RC --> D3["Keyword-sensitive system prompt overriding good descriptions"]
     D3 --> FIX3["✅ Review system prompt wording"]
     classDef bad fill:#B71C1C,color:#fff,stroke:#7F0000,stroke-width:2px
     classDef fix fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
@@ -78,13 +78,13 @@ Expanding descriptions is the low-effort, high-leverage first move. Reach for it
 ```mermaid
 flowchart TD
     E[Tool call fails] --> C{Error category}
-    C --> T1["⏳ Transient<br/>timeout, service down"]
-    C --> T2["🧾 Validation<br/>invalid input"]
-    C --> T3["📋 Business<br/>policy violation"]
+    C --> T1["⏳ Transient: timeout, service down"]
+    C --> T2["🧾 Validation: invalid input"]
+    C --> T3["📋 Business: policy violation"]
     C --> T4["🔑 Permission"]
     T1 --> R1["isRetryable: true → retry/backoff"]
     T2 --> R2["isRetryable: false → fix input"]
-    T3 --> R3["retriable: false + customer-friendly<br/>explanation the agent can relay"]
+    T3 --> R3["retriable: false + customer-friendly explanation the agent can relay"]
     T4 --> R4["isRetryable: false → escalate"]
     classDef cat fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef act fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -160,11 +160,11 @@ Three consequences worth knowing:
 ```mermaid
 flowchart LR
     subgraph SCOPES["Three scopes, three audiences"]
-        L["💻 Local (default)<br/>~/.claude.json<br/><i>this project, just you</i>"]
-        A["📁 Project<br/>.mcp.json in repo root<br/><i>this project, whole team via VCS</i>"]
-        C["🏠 User<br/>~/.claude.json<br/><i>all your projects, just you</i>"]
+        L["💻 Local (default): ~/.claude.json: this project, just you"]
+        A["📁 Project: .mcp.json in repo root: this project, whole team via VCS"]
+        C["🏠 User: ~/.claude.json: all your projects, just you"]
     end
-    SCOPES --> D["All connected servers' tools are discovered<br/>at connection time and available simultaneously"]
+    SCOPES --> D["All connected servers' tools are discovered at connection time and available simultaneously"]
     classDef proj fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef user fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
     classDef out fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -224,10 +224,10 @@ This is the F-D2 glimpse of the least-privilege story told in full in [P-D5](../
 
 ```mermaid
 flowchart TD
-    Q{What do you need?} --> A["Find text patterns<br/>inside files"] --> GR["🔍 Grep<br/>callers, error strings, imports"]
-    Q --> B["Find files by<br/>name/extension"] --> GL["🗂️ Glob<br/>**/*.test.tsx"]
-    Q --> C["Targeted change,<br/>unique anchor text"] --> ED["✏️ Edit"]
-    Q --> D["Edit anchor not unique /<br/>full rewrite"] --> RW["📖 Read → Write"]
+    Q{"What do you need?"} --> A["Find text patterns inside files"] --> GR["🔍 Grep: callers, error strings, imports"]
+    Q --> B["Find files by name/extension"] --> GL["🗂️ Glob: **/*.test.tsx"]
+    Q --> C["Targeted change, unique anchor text"] --> ED["✏️ Edit"]
+    Q --> D["Edit anchor not unique / full rewrite"] --> RW["📖 Read → Write"]
     classDef tool fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class GR,GL,ED,RW tool
@@ -255,12 +255,12 @@ Curation (2.3) is the answer while a catalog is small. It cannot be the answer a
 
 ```mermaid
 flowchart TD
-    Q["Task needs a capability"] --> LOADED{"Already loaded<br/>in context?"}
+    Q["Task needs a capability"] --> LOADED{"Already loaded in context?"}
     LOADED -- yes --> USE["Call the tool"]
-    LOADED -- no --> SEARCH["🔎 Search the catalog<br/>(names + descriptions)"]
-    SEARCH --> TOP["Load up to 5 most relevant<br/>→ stay available for later turns"]
+    LOADED -- no --> SEARCH["🔎 Search the catalog (names + descriptions)"]
+    SEARCH --> TOP["Load up to 5 most relevant → stay available for later turns"]
     TOP --> USE
-    N["Curate to 4–5 tools (Sec. 2.3)"] -.->|small sets: <~10 tools| BEST["Load everything upfront<br/>(no search round-trip)"]
+    N["Curate to 4–5 tools (Sec. 2.3)"] -.->|small sets: <~10 tools| BEST["Load everything upfront (no search round-trip)"]
     SEARCH -.->|large sets: 30–10,000 tools| WIN["Smaller context every turn"]
     classDef ok fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef alt fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
@@ -294,10 +294,10 @@ Curation and tool search are complementary, not alternatives. Scope tools per ro
 
 ```mermaid
 flowchart TD
-    REQ["Your request's tools[] array"] --> SRV["🖥️ Server tools<br/>execute on Anthropic's infra<br/>— result comes back automatically"]
-    REQ --> CLI["📦 Client tools<br/>Anthropic defines the schema,<br/>YOUR app runs it + returns tool_result"]
-    SRV --> SRVE["web_search · web_fetch · code_execution<br/>tool_search · advisor · mcp_toolset (connector)"]
-    CLI --> CLIE["bash · text_editor · computer · memory<br/>+ every tool YOU define"]
+    REQ["Your request's tools[] array"] --> SRV["🖥️ Server tools: execute on Anthropic's infra — result comes back automatically"]
+    REQ --> CLI["📦 Client tools: Anthropic defines the schema, YOUR app runs it + returns tool_result"]
+    SRV --> SRVE["web_search · web_fetch · code_execution tool_search · advisor · mcp_toolset (connector)"]
+    CLI --> CLIE["bash · text_editor · computer · memory + every tool YOU define"]
     classDef srv fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
     classDef cli fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px

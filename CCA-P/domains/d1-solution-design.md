@@ -13,11 +13,11 @@ Every solution the exam asks you to design decomposes into the same skeleton; kn
 
 ```mermaid
 flowchart LR
-    IN["📥 Input<br/>tickets, docs, queries,<br/>events, code"] --> PRE["Pre-processing<br/>validation · routing ·<br/>PII scrubbing"]
-    PRE --> CORE["🧠 Claude core<br/>prompt + context + tools<br/>(pattern choice lives here)"]
-    CORE --> POST["Post-processing<br/>schema validation ·<br/>guardrails · formatting"]
-    POST --> OUT["📤 Output<br/>actions, drafts,<br/>structured data"]
-    OUT --> FB["🔁 Feedback loop<br/>evals · user signals ·<br/>monitoring → prompt/data updates"]
+    IN["📥 Input: tickets, docs, queries, events, code"] --> PRE["Pre-processing: validation · routing · PII scrubbing"]
+    PRE --> CORE["🧠 Claude core: prompt + context + tools (pattern choice lives here)"]
+    CORE --> POST["Post-processing: schema validation · guardrails · formatting"]
+    POST --> OUT["📤 Output: actions, drafts, structured data"]
+    OUT --> FB["🔁 Feedback loop: evals · user signals · monitoring → prompt/data updates"]
     FB --> CORE
     classDef core fill:#303F9F,color:#fff,stroke:#1A237E,stroke-width:2px
     classDef stage fill:#5C6BC0,color:#fff,stroke:#303F9F,stroke-width:2px
@@ -31,11 +31,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Q{Is the sequence of steps<br/>known in advance?} -- yes --> W["⛓️ Workflow<br/>fixed pipeline of LLM calls<br/>predictable · testable · cheapest"]
-    Q -- no --> Q2{Does the model need to<br/>decide actions dynamically<br/>with tools?}
-    Q2 -- yes --> A["🤖 Agentic<br/>model-driven loop with tools<br/>flexible · higher cost/latency ·<br/>needs guardrails + observability"]
-    Q2 -- "no, just needs<br/>external knowledge" --> AL["📚 Augmented LLM<br/>single call + retrieval/tools<br/>(RAG), grounded answers"]
-    W --> RULE["Rule of thumb: choose the<br/>SIMPLEST pattern that meets<br/>requirements; agents are the<br/>exception, not the default"]
+    Q{"Is the sequence of steps known in advance?"} -- yes --> W["⛓️ Workflow: fixed pipeline of LLM calls: predictable · testable · cheapest"]
+    Q -- no --> Q2{"Does the model need to decide actions dynamically with tools?"}
+    Q2 -- yes --> A["🤖 Agentic: model-driven loop with tools: flexible · higher cost/latency · needs guardrails + observability"]
+    Q2 -- "no, just needs external knowledge" --> AL["📚 Augmented LLM: single call + retrieval/tools (RAG), grounded answers"]
+    W --> RULE["Rule of thumb: choose the SIMPLEST pattern that meets requirements; agents are the exception, not the default"]
     A --> RULE
     AL --> RULE
     classDef w fill:#5C6BC0,color:#fff,stroke:#303F9F,stroke-width:2px

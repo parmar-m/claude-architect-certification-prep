@@ -11,10 +11,10 @@ Defining metrics, building eval datasets and frameworks, A/B testing, diagnosing
 
 ```mermaid
 flowchart LR
-    DEF["1️⃣ Define metrics<br/>accuracy · latency · cost ·<br/>safety · security"] --> DS["2️⃣ Build eval dataset<br/>golden sets · edge cases ·<br/>real production samples"]
-    DS --> RUN["3️⃣ Run evals<br/>code graders · LLM-as-judge ·<br/>human review (mixed methods)"]
-    RUN --> AB["4️⃣ A/B test changes<br/>prompt / model / retrieval variants"]
-    AB --> MON["5️⃣ Monitor production<br/>logging · dashboards ·<br/>sampled review · drift alerts"]
+    DEF["1️⃣ Define metrics: accuracy · latency · cost · safety · security"] --> DS["2️⃣ Build eval dataset: golden sets · edge cases · real production samples"]
+    DS --> RUN["3️⃣ Run evals: code graders · LLM-as-judge · human review (mixed methods)"]
+    RUN --> AB["4️⃣ A/B test changes: prompt / model / retrieval variants"]
+    AB --> MON["5️⃣ Monitor production: logging · dashboards · sampled review · drift alerts"]
     MON --> DEF
     classDef step fill:#4527A0,color:#fff,stroke:#311B92,stroke-width:2px
     class DEF,DS,RUN,AB,MON step
@@ -31,13 +31,13 @@ flowchart LR
 ```mermaid
 flowchart TD
     SYM["🚨 Quality regression"] --> Q1{What changed?}
-    Q1 -- "documents / index refreshed" --> RET["🔎 Retrieval first:<br/>stale/irrelevant chunks, broken re-index,<br/>mismatched embeddings"]
-    Q1 -- "prompt edited" --> PR["📝 Prompt failure:<br/>criteria drift, lost instructions,<br/>format break"]
-    Q1 -- "model / tier swapped" --> MM["🤖 Model mismatch:<br/>task too hard for tier,<br/>or behavior shift on upgrade"]
-    Q1 -- "nothing (gradual)" --> DRIFT["📈 Input drift:<br/>new doc types / query patterns<br/>outside eval coverage"]
-    SYM --> HAL{"Confident but wrong<br/>(hallucination)?"}
+    Q1 -- "documents / index refreshed" --> RET["🔎 Retrieval first: stale/irrelevant chunks, broken re-index, mismatched embeddings"]
+    Q1 -- "prompt edited" --> PR["📝 Prompt failure: criteria drift, lost instructions, format break"]
+    Q1 -- "model / tier swapped" --> MM["🤖 Model mismatch: task too hard for tier, or behavior shift on upgrade"]
+    Q1 -- "nothing (gradual)" --> DRIFT["📈 Input drift: new doc types / query patterns outside eval coverage"]
+    SYM --> HAL{"Confident but wrong (hallucination)?"}
     HAL -- "grounded app" --> RET
-    HAL -- "schema fields invented" --> SCH["Nullable fields + validation<br/>(F-D4 Sec. 4.3)"]
+    HAL -- "schema fields invented" --> SCH["Nullable fields + validation (F-D4 Sec. 4.3)"]
     classDef diag fill:#4527A0,color:#fff,stroke:#311B92,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class RET,PR,MM,DRIFT,SCH diag

@@ -10,11 +10,11 @@ The smallest domain (~4–5 items): configuring Claude tooling for **teams**, im
 
 ```mermaid
 flowchart TD
-    ORG["🏢 Team enablement"] --> SHARED["Version-controlled shared config<br/>CLAUDE.md · .claude/rules/ ·<br/>.claude/commands/ · .claude/skills/ ·<br/>.mcp.json (env-expanded secrets)"]
-    ORG --> PERS["Personal layer<br/>~/.claude/…, experiments stay local"]
-    SHARED --> CONS["Consistency: every clone gets<br/>the same standards, commands,<br/>and tool integrations"]
-    PERS --> SAFE["Innovation without<br/>breaking teammates"]
-    CONS & SAFE --> ROLL["Rollout: pilot team → measure →<br/>iterate config → org playbooks →<br/>champions + training"]
+    ORG["🏢 Team enablement"] --> SHARED["Version-controlled shared config: CLAUDE.md · .claude/rules/ · .claude/commands/ · .claude/skills/ · .mcp.json (env-expanded secrets)"]
+    ORG --> PERS["Personal layer: ~/.claude/…, experiments stay local"]
+    SHARED --> CONS["Consistency: every clone gets the same standards, commands, and tool integrations"]
+    PERS --> SAFE["Innovation without breaking teammates"]
+    CONS & SAFE --> ROLL["Rollout: pilot team → measure → iterate config → org playbooks → champions + training"]
     classDef sh fill:#6D4C41,color:#fff,stroke:#4E342E,stroke-width:2px
     classDef pe fill:#8D6E63,color:#fff,stroke:#5D4037,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -44,8 +44,8 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    ISSUE["🚨 Operational issue"] --> TRI["Triage with AI assistance:<br/>logs + stack traces + repo context"] --> RCA["Root-cause exploration<br/>plan mode for unfamiliar systems ·<br/>direct execution for scoped fixes"]
-    RCA --> FIX["Fix + regression test"] --> RB["Feed learnings back:<br/>runbook entry · CLAUDE.md rule ·<br/>new eval case"]
+    ISSUE["🚨 Operational issue"] --> TRI["Triage with AI assistance: logs + stack traces + repo context"] --> RCA["Root-cause exploration: plan mode for unfamiliar systems · direct execution for scoped fixes"]
+    RCA --> FIX["Fix + regression test"] --> RB["Feed learnings back: runbook entry · CLAUDE.md rule · new eval case"]
     classDef step fill:#6D4C41,color:#fff,stroke:#4E342E,stroke-width:2px
     class TRI,RCA,FIX,RB step
     class ISSUE step

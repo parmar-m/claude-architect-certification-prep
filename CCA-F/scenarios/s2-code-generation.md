@@ -9,10 +9,10 @@
 ```mermaid
 flowchart TD
     subgraph REPO["📁 Team repository (version-controlled)"]
-        CM["CLAUDE.md: universal standards<br/>+ @import of standards files"]
-        RULES[".claude/rules/*.md<br/>YAML paths: globs for conditional load"]
-        CMD[".claude/commands/: /review, /test<br/>shared slash commands"]
-        SKILLS[".claude/skills/: SKILL.md<br/>context: fork · allowed-tools"]
+        CM["CLAUDE.md: universal standards + @import of standards files"]
+        RULES[".claude/rules/*.md: YAML paths: globs for conditional load"]
+        CMD[".claude/commands/: /review, /test: shared slash commands"]
+        SKILLS[".claude/skills/: SKILL.md: context: fork · allowed-tools"]
     end
     subgraph HOME["🏠 Per-developer (~/.claude/)"]
         UCM["personal CLAUDE.md"]
@@ -35,9 +35,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    NEED{What are you<br/>configuring?} --> A["Universal standards,<br/>always relevant"] --> CMX["CLAUDE.md (project root)"]
-    NEED --> B["Conventions for file types<br/>scattered across the tree"] --> RU[".claude/rules/ + paths: globs"]
-    NEED --> C["On-demand workflow<br/>(analysis, scaffolding)"] --> SK["Skill (context: fork if verbose,<br/>allowed-tools to restrict)"]
+    NEED{"What are you configuring?"} --> A["Universal standards, always relevant"] --> CMX["CLAUDE.md (project root)"]
+    NEED --> B["Conventions for file types scattered across the tree"] --> RU[".claude/rules/ + paths: globs"]
+    NEED --> C["On-demand workflow (analysis, scaffolding)"] --> SK["Skill (context: fork if verbose, allowed-tools to restrict)"]
     NEED --> D["Team-shared shortcut"] --> CO[".claude/commands/ in repo"]
     NEED --> E["Personal preference"] --> UP["~/.claude/…, never forced on team"]
     classDef opt fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px

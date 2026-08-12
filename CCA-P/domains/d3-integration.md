@@ -12,17 +12,17 @@ The **biggest CCA-P domain**: RAG pipelines, connection protocols (MCP vs API/CL
 ```mermaid
 flowchart LR
     subgraph ING["📚 Ingestion (offline)"]
-        SRC["Sources"] --> CH["Chunking<br/>size/overlap by doc structure:<br/>semantic > fixed for prose,<br/>structural for tables/code"]
+        SRC["Sources"] --> CH["Chunking: size/overlap by doc structure: semantic > fixed for prose, structural for tables/code"]
         CH --> EMB["Embedding"]
-        EMB --> IX["Index<br/>(vector · keyword · hybrid)"]
+        EMB --> IX["Index (vector · keyword · hybrid)"]
     end
     subgraph QRY["🔎 Query time"]
-        Q["User query"] --> RET["Retrieval<br/>top-k · filters · reranking"]
+        Q["User query"] --> RET["Retrieval: top-k · filters · reranking"]
         IX --> RET
-        RET --> CTX["Context assembly<br/>(citations preserved)"]
-        CTX --> LLM["Claude generates<br/>grounded, cited answer"]
+        RET --> CTX["Context assembly (citations preserved)"]
+        CTX --> LLM["Claude generates grounded, cited answer"]
     end
-    IX -. "re-index on refresh:<br/>#1 silent failure point" .-> RET
+    IX -. "re-index on refresh: #1 silent failure point" .-> RET
     classDef ing fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef qry fill:#42A5F5,color:#000,stroke:#1565C0,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -48,10 +48,10 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    NEED{Integration need} --> T1["Model needs to USE<br/>enterprise systems as tools,<br/>reusable across agents/apps"] --> MCP["🔌 MCP<br/>standardized tool/resource interface,<br/>discovery at connect time"]
-    NEED --> T2["Deterministic system-to-system<br/>call, no model in the loop /<br/>batch scripting"] --> API["⚙️ Direct API / CLI<br/>simplest, no protocol overhead"]
-    NEED --> T3["Autonomous agents<br/>cooperating across boundaries"] --> A2A["🤝 Agent-to-agent<br/>delegation between agent systems"]
-    MCP --> W["⚠️ Capability bloat check:<br/>every exposed tool widens the<br/>attack/misuse surface, so expose only<br/>what the role requires"]
+    NEED{Integration need} --> T1["Model needs to USE enterprise systems as tools, reusable across agents/apps"] --> MCP["🔌 MCP: standardized tool/resource interface, discovery at connect time"]
+    NEED --> T2["Deterministic system-to-system call, no model in the loop / batch scripting"] --> API["⚙️ Direct API / CLI: simplest, no protocol overhead"]
+    NEED --> T3["Autonomous agents cooperating across boundaries"] --> A2A["🤝 Agent-to-agent: delegation between agent systems"]
+    MCP --> W["⚠️ Capability bloat check: every exposed tool widens the attack/misuse surface, so expose only what the role requires"]
     classDef p fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef warn fill:#FFA000,color:#000,stroke:#FF6F00,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -66,13 +66,13 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    APP["Your application"] -->|"start a session (event)"| SESS["🔄 Session<br/>a running agent instance"]
-    AG["🤖 Agent<br/>model · system prompt ·<br/>tools · MCP · skills<br/><i>defined once, reused by ID</i>"] --> SESS
-    ENV{"🏗️ Environment<br/>where does it run?"} --> SESS
-    ENV -->|Anthropic-managed| CLOUD["☁️ Cloud sandbox<br/>pre-installed packages,<br/>network access"]
-    ENV -->|you control| SELF["🏠 Self-hosted sandbox<br/>your infra: compliance /<br/>data-residency"]
-    SESS -->|SSE stream| EVENTS["📡 Events<br/>user turns · tool results ·<br/>status updates (persisted server-side)"]
-    SESS -.->|"steer / interrupt<br/>mid-run"| APP
+    APP["Your application"] -->|"start a session (event)"| SESS["🔄 Session: a running agent instance"]
+    AG["🤖 Agent: model · system prompt · tools · MCP · skills: defined once, reused by ID"] --> SESS
+    ENV{"🏗️ Environment: where does it run?"} --> SESS
+    ENV -->|Anthropic-managed| CLOUD["☁️ Cloud sandbox: pre-installed packages, network access"]
+    ENV -->|you control| SELF["🏠 Self-hosted sandbox: your infra: compliance / data-residency"]
+    SESS -->|SSE stream| EVENTS["📡 Events: user turns · tool results · status updates (persisted server-side)"]
+    SESS -.->|"steer / interrupt mid-run"| APP
     classDef p fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     classDef sb fill:#00838F,color:#fff,stroke:#006064,stroke-width:2px
@@ -107,9 +107,9 @@ sequenceDiagram
     participant WH as Webhook endpoint
     App->>MA: start session (long-running)
     Note over MA: runs for minutes/hours
-    MA-->>WH: event: type + id only<br/>(e.g. session.status_idled)
+    MA-->>WH: event: type + id only (e.g. session.status_idled)
     WH->>MA: GET the object by id
-    Note over WH: fetch fresh state,<br/>then act (notify user / send input)
+    Note over WH: fetch fresh state, then act (notify user / send input)
 ```
 
 **Know cold:**
@@ -127,15 +127,15 @@ sequenceDiagram
 flowchart LR
     subgraph ANT["Anthropic"]
         BK["Backend / hosted agent"]
-        EDGE["Tunnel edge<br/>(Cloudflare network)"]
+        EDGE["Tunnel edge (Cloudflare network)"]
     end
     subgraph YOU["🔒 Your private network"]
-        CF["cloudflared<br/>(outbound-only connector)"]
-        PX["Proxy<br/>terminates inner TLS,<br/>routes by hostname"]
+        CF["cloudflared (outbound-only connector)"]
+        PX["Proxy: terminates inner TLS, routes by hostname"]
         MCP["Upstream MCP server"]
     end
-    CF -->|"① dials OUT :7844<br/>(no inbound port opened)"| EDGE
-    BK -->|"② MCP request<br/>(inner TLS)"| EDGE
+    CF -->|"① dials OUT :7844 (no inbound port opened)"| EDGE
+    BK -->|"② MCP request (inner TLS)"| EDGE
     EDGE -->|over the open conn| CF
     CF --> PX
     PX -->|"③ route by hostname"| MCP

@@ -1,0 +1,251 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="UuKt07cnc6YseCij8T55">
+    <mxGraphModel dx="1178" dy="1758" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;flowchart TB\n    subgraph L4[\&quot;Level 4 · Application layer — finished products (no code)\&quot;]\n        direction LR\n        CHAT[\&quot;💬 claude.ai&lt;br/&gt;&lt;i&gt;chat&lt;/i&gt;\&quot;]\n        CODE[\&quot;👩‍💻 Claude Code&lt;br/&gt;&lt;i&gt;coding agent · CLI/IDE&lt;/i&gt;\&quot;]\n        COWORK[\&quot;🗂️ Claude Cowork&lt;br/&gt;&lt;i&gt;knowledge-work agent&lt;/i&gt;\&quot;]\n        APPS[\&quot;✨ Chrome · Excel · PowerPoint&lt;br/&gt;Outlook · Slack (Tag) · Design\&quot;]\n    end\n\n    subgraph L3[\&quot;Level 3 · Tooling layer — how you call the API\&quot;]\n        direction LR\n        CLI[\&quot;⌨️ ant CLI&lt;br/&gt;&lt;i&gt;every resource as a subcommand&lt;br/&gt;shell scripting · YAML/JSON&lt;/i&gt;\&quot;]\n        CSDK[\&quot;📦 Client SDKs ×7&lt;br/&gt;&lt;i&gt;Py · TS · C# · Go · Java · PHP · Ruby&lt;br/&gt;general-purpose Messages clients&lt;/i&gt;\&quot;]\n        LIBS[\&quot;🔌 Libraries &amp;amp; integrations&lt;br/&gt;&lt;i&gt;Apple Foundation Models ·&lt;br/&gt;OpenAI SDK compatibility&lt;/i&gt;\&quot;]\n    end\n\n    subgraph L2[\&quot;Level 2 · Inference / capability layer\&quot;]\n        subgraph LOOP[\&quot;Loop is PROVIDED — both resolve down to Messages\&quot;]\n            direction LR\n            ASDK[\&quot;🌉 Agent SDK&lt;br/&gt;&lt;i&gt;claude-agent-sdk · Py/TS&lt;br/&gt;loop runs in YOUR process&lt;/i&gt;\&quot;]\n            MGD[\&quot;🛠️ Managed Agents&lt;br/&gt;&lt;i&gt;/v1/agents · /v1/sessions · /v1/environments&lt;br/&gt;ANTHROPIC runs loop + sandbox&lt;/i&gt;\&quot;]\n        end\n        MSG[\&quot;📨 Messages API — the primitive&lt;br/&gt;&lt;i&gt;/v1/messages · /batches · count_tokens&lt;br/&gt;YOU run the agent loop&lt;/i&gt;\&quot;]\n    end\n\n    subgraph L1[\&quot;Level 1 · Deployment / hosting layer — who handles IAM\&quot;]\n        direction LR\n        DIRECT[\&quot;🅰️ Direct Anthropic API&lt;br/&gt;&lt;i&gt;api.anthropic.com&lt;/i&gt;\&quot;]\n        CPAWS[\&quot;🟠 Claude Platform on AWS&lt;br/&gt;&lt;i&gt;native features, AWS billing&lt;/i&gt;\&quot;]\n        BEDROCK[\&quot;🟨 Amazon Bedrock&lt;br/&gt;&lt;i&gt;inference inside AWS boundary&lt;/i&gt;\&quot;]\n    end\n\n    subgraph L0[\&quot;Level 0 · Foundation\&quot;]\n        MODELS[\&quot;🧠 Claude models&lt;br/&gt;&lt;i&gt;Mythos · Fable · Opus · Sonnet · Haiku&lt;/i&gt;\&quot;]\n    end\n\n    CHAT --&gt; CSDK\n    CODE ==&gt;|\&quot;same harness,&lt;br/&gt;packaged as library\&quot;| ASDK\n    COWORK --&gt; ASDK\n    APPS --&gt; CSDK\n\n    CLI --&gt; MGD\n    CLI --&gt; MSG\n    CSDK --&gt; MGD\n    CSDK --&gt; MSG\n    LIBS --&gt; MSG\n\n    ASDK ==&gt;|\&quot;documented\&quot;| MSG\n    MGD -.-&gt;|\&quot;inferred — no&lt;br/&gt;other primitive\&quot;| MSG\n\n    MSG --&gt; DIRECT\n    MSG --&gt; CPAWS\n    MSG --&gt; BEDROCK\n\n    DIRECT --&gt;|\&quot;🔑 x-api-key&lt;br/&gt;&lt;i&gt;Anthropic API key&lt;/i&gt;\&quot;| MODELS\n    CPAWS --&gt;|\&quot;🔑 AWS IAM · SigV4&lt;br/&gt;&lt;i&gt;re-auth every 6h&lt;/i&gt;\&quot;| MODELS\n    BEDROCK --&gt;|\&quot;🔑 AWS IAM · SigV4&lt;br/&gt;&lt;i&gt;AWS-native roles&lt;/i&gt;\&quot;| MODELS\n\n    linkStyle 9 stroke:#E64A19,stroke-width:3px\n    linkStyle 10 stroke:#C62828,stroke-width:2px,stroke-dasharray:5 5\n\n    classDef model fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px\n    classDef api fill:#C62828,color:#fff,stroke:#7f0000,stroke-width:2px\n    classDef sdk fill:#E64A19,color:#fff,stroke:#BF360C,stroke-width:2px\n    classDef tool fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px\n    classDef host fill:#546E7A,color:#fff,stroke:#37474F,stroke-width:2px\n    classDef prod fill:#00796B,color:#fff,stroke:#004D40,stroke-width:2px\n\n    class MODELS model\n    class MSG,MGD api\n    class ASDK sdk\n    class CLI,CSDK,LIBS tool\n    class DIRECT,CPAWS,BEDROCK host\n    class CHAT,CODE,COWORK,APPS prod\n\n    style L0 fill:#EDE7F6,stroke:#512DA8,color:#311B92\n    style L1 fill:#ECEFF1,stroke:#546E7A,color:#37474F\n    style L2 fill:#FFEBEE,stroke:#C62828,color:#7f0000\n    style L3 fill:#E3F2FD,stroke:#1976D2,color:#0D47A1\n    style L4 fill:#E0F2F1,stroke:#00796B,color:#004D40\n    style LOOP fill:#FBE9E7,stroke:#E64A19,color:#BF360C&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="RbiSmERzLPA4ncm3QKlI-35">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=10;" vertex="1">
+            <mxGeometry height="1423" width="2700" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Level 4 · Application layer — finished products (no code)" mermaidId="n:L4" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#E0F2F1;strokeColor=#00796B;fontColor=#004D40;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Level 4 · Application layer — finished products (no code)" id="RbiSmERzLPA4ncm3QKlI-36">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#E0F2F1;strokeColor=#00796B;fontColor=#004D40;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="390" width="430" x="480" y="-650" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="💬 claude.ai&#xa;&lt;i&gt;chat&lt;/i&gt;" mermaidId="n:CHAT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="💬 claude.ai&#xa;&lt;i&gt;chat&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-37">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-36" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="80" width="197.93" x="190" y="280" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="✨ Chrome · Excel · PowerPoint&#xa;Outlook · Slack (Tag) · Design" mermaidId="n:APPS" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="✨ Chrome · Excel · PowerPoint&#xa;Outlook · Slack (Tag) · Design" id="RbiSmERzLPA4ncm3QKlI-40">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-36" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="80" width="197.93" x="190" y="170" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🗂️ Claude Cowork&#xa;&lt;i&gt;knowledge-work agent&lt;/i&gt;" mermaidId="n:COWORK" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🗂️ Claude Cowork&#xa;&lt;i&gt;knowledge-work agent&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-39">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-36" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="80" width="197.93" x="190" y="60" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="👩‍💻 Claude Code&#xa;&lt;i&gt;coding agent · CLI/IDE&lt;/i&gt;" mermaidId="n:CODE" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="👩‍💻 Claude Code&#xa;&lt;i&gt;coding agent · CLI/IDE&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-38">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-36" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#00796B;strokeColor=#004D40;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="300" width="125.26086956521739" x="20.001449275362347" y="60" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Level 3 · Tooling layer — how you call the API" mermaidId="n:L3" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#E3F2FD;strokeColor=#1976D2;fontColor=#0D47A1;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Level 3 · Tooling layer — how you call the API" id="RbiSmERzLPA4ncm3QKlI-41">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#E3F2FD;strokeColor=#1976D2;fontColor=#0D47A1;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="250" width="1119" x="988" y="-148" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="📦 Client SDKs ×7&#xa;&lt;i&gt;Py · TS · C# · Go · Java · PHP · Ruby&#xa;general-purpose Messages clients&lt;/i&gt;" mermaidId="n:CSDK" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="📦 Client SDKs ×7&#xa;&lt;i&gt;Py · TS · C# · Go · Java · PHP · Ruby&#xa;general-purpose Messages clients&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-43">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-41" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="142.63803680981596" width="319" x="422" y="59.99840490797547" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🔌 Libraries &amp;amp; integrations&#xa;&lt;i&gt;Apple Foundation Models ·&#xa;OpenAI SDK compatibility&lt;/i&gt;" mermaidId="n:LIBS" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🔌 Libraries &amp;amp; integrations&#xa;&lt;i&gt;Apple Foundation Models ·&#xa;OpenAI SDK compatibility&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-44">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-41" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="142.63803680981596" width="254" x="834" y="59.99840490797547" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="⌨️ ant CLI&#xa;&lt;i&gt;every resource as a subcommand&#xa;shell scripting · YAML/JSON&lt;/i&gt;" mermaidId="n:CLI" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="⌨️ ant CLI&#xa;&lt;i&gt;every resource as a subcommand&#xa;shell scripting · YAML/JSON&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-42">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-41" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="142.63803680981596" width="297" x="46" y="59.99840490797546" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Level 2 · Inference / capability layer (What do I call ?)" mermaidId="n:L2" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#FFEBEE;strokeColor=#C62828;fontColor=#7f0000;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Level 2 · Inference / capability layer" id="RbiSmERzLPA4ncm3QKlI-45">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#FFEBEE;strokeColor=#C62828;fontColor=#7f0000;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="431" width="1030" x="770" y="239" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Loop is PROVIDED — both resolve down to Messages" mermaidId="n:LOOP" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#FBE9E7;strokeColor=#E64A19;fontColor=#BF360C;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Loop is PROVIDED — both resolve down to Messages" id="RbiSmERzLPA4ncm3QKlI-46">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-45" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#FBE9E7;strokeColor=#E64A19;fontColor=#BF360C;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="169.69568627450982" width="684.84" x="25.16" y="46.84378431372549" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🛠️ Managed Agents&#xa;&lt;i&gt;/v1/agents · /v1/sessions · /v1/environments&#xa;ANTHROPIC runs loop + sandbox&lt;/i&gt;" mermaidId="n:MGD" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#C62828;strokeColor=#7f0000;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🛠️ Managed Agents&#xa;&lt;i&gt;/v1/agents · /v1/sessions · /v1/environments&#xa;ANTHROPIC runs loop + sandbox&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-48">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-46" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#C62828;strokeColor=#7f0000;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="96.82023818116207" width="353.69865612648226" x="313.4834798418973" y="46.11325643832129" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🌉 Agent SDK&lt;br&gt;&lt;i&gt;claude-agent-sdk · Py/TS&lt;br&gt;loop runs on client-side&lt;/i&gt;" mermaidId="n:ASDK" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#E64A19;strokeColor=#BF360C;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🌉 Agent SDK&#xa;&lt;i&gt;claude-agent-sdk · Py/TS&#xa;loop runs in YOUR process&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-47">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-46" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#E64A19;strokeColor=#BF360C;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="96.82023818116207" width="222.86624505928856" x="54.137549407114626" y="46.11325643832126" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="📨 Messages API — the primitive (no harness)&lt;br&gt;&lt;i&gt;/v1/messages · /batches · count_tokens&lt;br&gt;YOU run the agent loop&lt;/i&gt;" mermaidId="n:MSG" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#C62828;strokeColor=#7f0000;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="📨 Messages API — the primitive&#xa;&lt;i&gt;/v1/messages · /batches · count_tokens&#xa;YOU run the agent loop&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-49">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-45" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#C62828;strokeColor=#7f0000;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="96.82288235294118" width="746.4983713355049" x="83.87622149837134" y="308.7274509803922" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-93" edge="1" parent="RbiSmERzLPA4ncm3QKlI-45" source="RbiSmERzLPA4ncm3QKlI-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;curved=1;strokeWidth=3;dashed=1;" target="RbiSmERzLPA4ncm3QKlI-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-94" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-93" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;inferred — no&lt;/div&gt;&lt;div&gt;other primitive&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.194" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-91" edge="1" parent="RbiSmERzLPA4ncm3QKlI-45" source="RbiSmERzLPA4ncm3QKlI-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;strokeWidth=3;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="RbiSmERzLPA4ncm3QKlI-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-95" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-91" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="documented" vertex="1">
+          <mxGeometry relative="1" x="-0.2065" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <UserObject label="Level 1 · Deployment / hosting layer" mermaidId="n:L1" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#ECEFF1;strokeColor=#546E7A;fontColor=#37474F;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Level 1 · Deployment / hosting layer — who handles IAM" id="RbiSmERzLPA4ncm3QKlI-52">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#ECEFF1;strokeColor=#546E7A;fontColor=#37474F;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="143" width="975" x="797.5" y="790" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🟠 Claude Platform on AWS&lt;br&gt;&lt;i&gt;native features, AWS billing,&lt;br&gt;no feature-lag&lt;/i&gt;" mermaidId="n:CPAWS" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🟠 Claude Platform on AWS&#xa;&lt;i&gt;native features, AWS billing&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-54">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-52" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="73" width="270.14331210191085" x="352.42834394904463" y="50" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-53">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-52" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="73" width="237.0222929936306" x="36.226114649681534" y="50" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Level 0 · Foundation" mermaidId="n:L0" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#EDE7F6;strokeColor=#512DA8;fontColor=#311B92;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Level 0 · Foundation" id="RbiSmERzLPA4ncm3QKlI-56">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#EDE7F6;strokeColor=#512DA8;fontColor=#311B92;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="143" width="928" x="852.5" y="1160" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="🧠 Claude models&#xa;&lt;i&gt;Mythos · Fable · Opus · Sonnet · Haiku&lt;/i&gt;" mermaidId="n:MODELS" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#512DA8;strokeColor=#311B92;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🧠 Claude models&#xa;&lt;i&gt;Mythos · Fable · Opus · Sonnet · Haiku&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-57">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-56" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#512DA8;strokeColor=#311B92;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="73" width="768.3931203931205" x="79.80343980343982" y="45" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-73" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;strokeColor=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="730" y="-359.46666666666647" as="sourcePoint" />
+            <mxPoint x="1076.5333333333333" y="405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-79" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;curved=1;" target="RbiSmERzLPA4ncm3QKlI-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-80" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-79" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;🔑 AWS IAM · SigV4&lt;/div&gt;&lt;div&gt;AWS-native roles&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0791" y="-10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <UserObject label="🟨 Claude Platform on cloud&lt;br&gt;AWS/Google Vertex/Azure Foundry&lt;br&gt;(mainly for strict data residency/HIPAA)" mermaidId="n:BEDROCK" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🟨 Amazon Bedrock&#xa;&lt;i&gt;inference inside AWS boundary&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-55">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="90" width="305" x="1457.5" y="830" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-77" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;curved=1;" target="RbiSmERzLPA4ncm3QKlI-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-78" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-77" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;🔑 x-api-key&lt;/div&gt;&lt;div&gt;Anthropic API key&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.5134" y="18" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-81" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-54" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" target="RbiSmERzLPA4ncm3QKlI-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-82" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-81" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;🔑 AWS IAM · SigV4&lt;/div&gt;&lt;div&gt;re-auth every 6h&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.2672" y="10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-90" parent="RbiSmERzLPA4ncm3QKlI-35" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&amp;lt;-- Authentication Layer ----" vertex="1">
+          <mxGeometry height="30" width="180" x="1762.5" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-96" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;curved=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;" target="RbiSmERzLPA4ncm3QKlI-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-97" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-96" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="uses agent SDK &lt;br&gt;as harness" vertex="1">
+          <mxGeometry relative="1" x="-0.5225" y="10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-99" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-36" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" target="RbiSmERzLPA4ncm3QKlI-46" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="79" />
+            </Array>
+            <mxPoint x="750" y="60" as="sourcePoint" />
+            <mxPoint x="820.1840000000002" y="-148" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <UserObject label="Level 4 ·&amp;nbsp; Custom Use cases" mermaidId="n:L1" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#ECEFF1;strokeColor=#546E7A;fontColor=#37474F;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Level 1 · Deployment / hosting layer — who handles IAM" id="RbiSmERzLPA4ncm3QKlI-102">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-35" style="html=1;whiteSpace=wrap;strokeWidth=1;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="350" width="1290" x="970" y="-640" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="&lt;strong&gt;🔁 CI/CD &amp;amp; ops scripting&lt;/strong&gt;&lt;br&gt;&lt;br/&gt;&lt;em&gt;bash: lint a prompt, kick off a batch, rotate keys, list workspaces&lt;/em&gt;&lt;br&gt;&lt;br/&gt;&lt;strong&gt;no Py/TS runtime · no loop wanted&lt;/strong&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-104">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-102" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="140" width="377.08" x="52.92" y="43.5" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="&lt;strong&gt;📋 API resources as YAML in git&lt;/strong&gt;&lt;br&gt;&lt;br/&gt;&lt;em&gt;version-control agent/env definitions, diff &amp;amp; review in PRs&lt;/em&gt;&lt;br&gt;&lt;br/&gt;&lt;strong&gt;resource mgmt, not inference&lt;/strong&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-106">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-102" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="130" width="377.08" x="52.92" y="206" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="&lt;strong&gt;☕ Backend in Java / Go / C# / Ruby&lt;/strong&gt;&lt;br&gt;&lt;br/&gt;&lt;em&gt;ticket classification, PII extraction inside an existing service&lt;/em&gt;&lt;br&gt;&lt;br/&gt;&lt;strong&gt;Agent SDK doesn&#39;t exist for these languages&lt;/strong&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-107">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-102" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="140" width="377.08" x="470" y="43.5" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="&lt;strong&gt;📦 High-volume single-shot calls&lt;/strong&gt;&lt;br&gt;&lt;br/&gt;&lt;em&gt;batch summarization + prompt caching, strict JSON out&lt;/em&gt;&lt;br&gt;&lt;br/&gt;&lt;strong&gt;want fixed cost &amp;amp; latency, no loop&lt;/strong&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-108">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-102" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="130" width="377.08" x="470" y="206" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="&lt;strong&gt;&amp;nbsp;🔄 Existing OpenAI-shaped app&lt;/strong&gt;&lt;br&gt;&lt;br/&gt;&lt;em&gt;swap base URL to evaluate Claude before committing&lt;/em&gt;&lt;br&gt;&lt;br/&gt;&lt;strong&gt;zero rewrite of call sites&lt;/strong&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-109">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-102" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="140" width="380" x="880" y="43.5" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="&lt;div role=&quot;feed&quot; aria-label=&quot;Chat messages&quot; aria-describedby=&quot;_r_i6_&quot; aria-busy=&quot;false&quot; data-find-provider-scope=&quot;&quot; style=&quot;margin-bottom: 0px;&quot;&gt;&lt;div data-sizer-excess=&quot;0&quot; data-rocksteady-sizer=&quot;&quot; style=&quot;position: relative; width: 100%;&quot;&gt;&lt;div data-rs-index=&quot;27&quot; data-index=&quot;27&quot; data-last-message=&quot;true&quot; style=&quot;display: flow-root;&quot;&gt;&lt;div role=&quot;article&quot; tabindex=&quot;0&quot; aria-setsize=&quot;28&quot; aria-posinset=&quot;28&quot; aria-label=&quot;Message 28 of 28&quot;&gt;&lt;div data-test-render-count=&quot;1&quot;&gt;&lt;div class=&quot;group group/message-row&quot; style=&quot;height: auto; opacity: 1; transform: none;&quot;&gt;&lt;div class=&quot;contents&quot;&gt;&lt;div data-is-streaming=&quot;false&quot; class=&quot;group relative relative pb-[var(--msg-assistant-pb,0.75rem)]&quot; style=&quot;opacity: 1; transform: none;&quot;&gt;&lt;div class=&quot;font-claude-response relative leading-[1.65rem] [&amp;amp;_pre&amp;gt;div]:bg-bg-000/50 [&amp;amp;_pre&amp;gt;div]:border-0.5 [&amp;amp;_pre&amp;gt;div]:border-border-400 [&amp;amp;_.ignore-pre-bg&amp;gt;div]:bg-transparent [&amp;amp;_.standard-markdown_:is(p,blockquote,h1,h2,h3,h4,h5,h6)]:pl-2 [&amp;amp;_.standard-markdown_:is(p,blockquote,ul,ol,h1,h2,h3,h4,h5,h6)]:pr-8 [&amp;amp;_.progressive-markdown_:is(p,blockquote,h1,h2,h3,h4,h5,h6)]:pl-2 [&amp;amp;_.progressive-markdown_:is(p,blockquote,ul,ol,h1,h2,h3,h4,h5,h6)]:pr-8&quot;&gt;&lt;div class=&quot;grid grid-rows-[auto_auto] min-w-0&quot;&gt;&lt;div class=&quot;row-start-2 col-start-1 relative grid grid-rows-[auto_auto] isolate min-w-0&quot;&gt;&lt;div class=&quot;row-start-1 col-start-1 relative z-[2] min-w-0&quot;&gt;&lt;div class=&quot;standard-markdown grid-cols-1 grid [&amp;amp;_&amp;gt;_*]:min-w-0 gap-3 [&amp;amp;_&amp;gt;_*:last-child]:mb-0 print:block print:[&amp;amp;_&amp;gt;_*_+_*]:mt-3 standard-markdown&quot;&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal&quot; dir=&quot;ltr&quot;&gt;&lt;strong&gt;&amp;nbsp;🍎 Swift / iOS on-device app&lt;/strong&gt;&lt;br&gt;&lt;br/&gt;&lt;em&gt;Claude via Apple Foundation Models framework surface&lt;/em&gt;&lt;br&gt;&lt;br/&gt;&lt;strong&gt;no Swift Agent SDK; wrong surface&lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-message-action-bar=&quot;&quot; class=&quot;flex justify-start ml-0.5&quot;&gt;&lt;div class=&quot;text-text-300&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;position: relative;&quot;&gt;&lt;div class=&quot;flow-root&quot;&gt;&lt;div class=&quot;ml-1 mt-6 flex items-center transition-transform duration-300 ease-out&quot;&gt;&lt;div class=&quot;p-1 -translate-x-px&quot;&gt;&lt;div aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div aria-hidden=&quot;true&quot; style=&quot;height: 0px;&quot;&gt;&lt;/div&gt;&lt;div aria-hidden=&quot;true&quot; class=&quot;h-px w-full pointer-events-none&quot;&gt;&lt;/div&gt;" mermaidId="n:DIRECT" mermaidBaseStyle="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#546E7A;strokeColor=#37474F;fontColor=#fff;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="🅰️ Direct Anthropic API&#xa;&lt;i&gt;api.anthropic.com&lt;/i&gt;" id="RbiSmERzLPA4ncm3QKlI-110">
+          <mxCell parent="RbiSmERzLPA4ncm3QKlI-102" style="html=1;whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="130" width="380" x="880" y="206" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-111" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.883;entryY=-0.007;entryDx=0;entryDy=0;curved=1;strokeWidth=2;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryPerimeter=0;" target="RbiSmERzLPA4ncm3QKlI-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-112" connectable="0" parent="RbiSmERzLPA4ncm3QKlI-111" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="API client for &lt;br&gt;Messages API" vertex="1">
+          <mxGeometry relative="1" x="0.1901" y="3" as="geometry">
+            <mxPoint x="40" y="5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-114" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;curved=1;strokeWidth=2;" target="RbiSmERzLPA4ncm3QKlI-48">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-117" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;curved=1;strokeWidth=2;" target="RbiSmERzLPA4ncm3QKlI-48">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-100" parent="RbiSmERzLPA4ncm3QKlI-35" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&amp;lt;-- Inference Layer PLUS Harness ----" vertex="1">
+          <mxGeometry height="30" width="240" x="1660" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-101" parent="RbiSmERzLPA4ncm3QKlI-35" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&amp;lt;-- Primitive Inference Layer ----" vertex="1">
+          <mxGeometry height="30" width="180" x="1690" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-119" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-106" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" target="RbiSmERzLPA4ncm3QKlI-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-120" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-108" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" target="RbiSmERzLPA4ncm3QKlI-43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-121" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-110" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;curved=1;" target="RbiSmERzLPA4ncm3QKlI-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RbiSmERzLPA4ncm3QKlI-122" edge="1" parent="RbiSmERzLPA4ncm3QKlI-35" source="RbiSmERzLPA4ncm3QKlI-45" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="RbiSmERzLPA4ncm3QKlI-52" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1320" y="710" as="sourcePoint" />
+            <mxPoint x="1370" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

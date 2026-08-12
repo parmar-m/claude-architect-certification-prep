@@ -5,12 +5,12 @@ A working index that maps the **exam-relevant** pages of the official Claude Cod
 ```mermaid
 flowchart LR
     subgraph DOCS["code.claude.com/docs (170 pages)"]
-        A["agents · sub-agents · workflows<br/>agent-teams · agent-view · worktrees"]
-        B["mcp · custom-tools · tool-search<br/>tools-reference"]
-        C["memory · settings · commands · skills<br/>hooks · plugins · permissions · CI"]
-        D["structured-outputs · output-styles<br/>system-prompts · batch"]
-        E["context-window · prompt-caching<br/>checkpointing · sessions · costs"]
-        X["gateways · bedrock/vertex · billing<br/>IDE setup · what's-new · admin"]
+        A["agents · sub-agents · workflows agent-teams · agent-view · worktrees"]
+        B["mcp · custom-tools · tool-search tools-reference"]
+        C["memory · settings · commands · skills hooks · plugins · permissions · CI"]
+        D["structured-outputs · output-styles system-prompts · batch"]
+        E["context-window · prompt-caching checkpointing · sessions · costs"]
+        X["gateways · bedrock/vertex · billing IDE setup · what's-new · admin"]
     end
     A --> D1["d1 · Agentic Architecture"]
     B --> D2["d2 · Tool Design & MCP"]

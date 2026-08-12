@@ -22,69 +22,69 @@ flowchart TB
 
     subgraph UC["Level 4 · Custom Use cases"]
         direction LR
-        CICD["<b>🔁 CI/CD &amp; ops scripting</b><br/><br/><i>bash: lint a prompt, kick off a batch, rotate keys, list workspaces</i><br/><br/><b>no Py/TS runtime · no loop wanted</b>"]
-        YAMLGIT["<b>📋 API resources as YAML in git</b><br/><br/><i>version-control agent/env definitions, diff &amp; review in PRs</i><br/><br/><b>resource mgmt, not inference</b>"]
-        BACKEND["<b>☕ Backend in Java / Go / C# / Ruby</b><br/><br/><i>ticket classification, PII extraction inside an existing service</i><br/><br/><b>Agent SDK doesn't exist for these languages</b>"]
-        BATCH["<b>📦 High-volume single-shot calls</b><br/><br/><i>batch summarization + prompt caching, strict JSON out</i><br/><br/><b>want fixed cost &amp; latency, no loop</b>"]
-        OPENAI["<b>🔄 Existing OpenAI-shaped app</b><br/><br/><i>swap base URL to evaluate Claude before committing</i><br/><br/><b>zero rewrite of call sites</b>"]
-        SWIFT["<b>🍎 Swift / iOS on-device app</b><br/><br/><i>Claude via Apple Foundation Models framework surface</i><br/><br/><b>no Swift Agent SDK; wrong surface</b>"]
+        CICD["🔁 CI/CD &amp; ops scripting: bash: lint a prompt, kick off a batch, rotate keys, list workspaces: no Py/TS runtime · no loop wanted"]
+        YAMLGIT["📋 API resources as YAML in git: version-control agent/env definitions, diff &amp; review in PRs: resource mgmt, not inference"]
+        BACKEND["☕ Backend in Java / Go / C# / Ruby: ticket classification, PII extraction inside an existing service: Agent SDK doesn't exist for these languages"]
+        BATCH["📦 High-volume single-shot calls: batch summarization + prompt caching, strict JSON out: want fixed cost &amp; latency, no loop"]
+        OPENAI["🔄 Existing OpenAI-shaped app: swap base URL to evaluate Claude before committing: zero rewrite of call sites"]
+        SWIFT["🍎 Swift / iOS on-device app: Claude via Apple Foundation Models framework surface: no Swift Agent SDK; wrong surface"]
     end
 
     subgraph L4["Level 4 · Application layer — finished products (no code)"]
         direction LR
-        CODE["👩‍💻 Claude Code<br/><i>coding agent · CLI/IDE</i>"]
-        COWORK["🗂️ Claude Cowork<br/><i>knowledge-work agent</i>"]
-        APPS["✨ Chrome · Excel · PowerPoint<br/>Outlook · Slack (Tag) · Design"]
-        CHAT["💬 claude.ai<br/><i>chat</i>"]
+        CODE["👩‍💻 Claude Code: coding agent · CLI/IDE"]
+        COWORK["🗂️ Claude Cowork: knowledge-work agent"]
+        APPS["✨ Chrome · Excel · PowerPoint Outlook · Slack (Tag) · Design"]
+        CHAT["💬 claude.ai: chat"]
     end
 
     subgraph L3["Level 3 · Tooling layer — how you call the API"]
         direction LR
-        CLI["⌨️ ant CLI<br/><i>every resource as a subcommand<br/>shell scripting · YAML/JSON</i>"]
-        CSDK["📦 Client SDKs ×7<br/><i>Py · TS · C# · Go · Java · PHP · Ruby<br/>general-purpose Messages clients</i>"]
-        LIBS["🔌 Libraries &amp; integrations<br/><i>Apple Foundation Models ·<br/>OpenAI SDK compatibility</i>"]
+        CLI["⌨️ ant CLI: every resource as a subcommand: shell scripting · YAML/JSON"]
+        CSDK["📦 Client SDKs ×7: Py · TS · C# · Go · Java · PHP · Ruby: general-purpose Messages clients"]
+        LIBS["🔌 Libraries &amp; integrations: Apple Foundation Models · OpenAI SDK compatibility"]
     end
 
     subgraph L2["Level 2 · Inference / capability layer (What do I call ?)"]
         subgraph LOOP["Loop is PROVIDED — inference layer PLUS harness · both resolve down to Messages"]
             direction LR
-            ASDK["🌉 Agent SDK<br/><i>claude-agent-sdk · Py/TS<br/>loop runs on client-side</i>"]
-            MGD["🛠️ Managed Agents<br/><i>/v1/agents · /v1/sessions · /v1/environments<br/>ANTHROPIC runs loop + sandbox</i>"]
+            ASDK["🌉 Agent SDK: claude-agent-sdk · Py/TS: loop runs on client-side"]
+            MGD["🛠️ Managed Agents: /v1/agents · /v1/sessions · /v1/environments: ANTHROPIC runs loop + sandbox"]
         end
-        MSG["📨 Messages API — the primitive inference layer<br/><i>/v1/messages · /batches · count_tokens<br/>YOU run the agent loop</i>"]
+        MSG["📨 Messages API — the primitive inference layer: /v1/messages · /batches · count_tokens: YOU run the agent loop"]
     end
 
     subgraph L1["Level 1 · Deployment / hosting layer — authentication"]
         direction LR
-        DIRECT["🅰️ Direct Anthropic API<br/><i>api.anthropic.com</i>"]
-        CPAWS["🟠 Claude Platform on AWS<br/><i>native features, AWS billing,<br/>no feature-lag</i>"]
-        CLOUD["🟨 Claude Platform on cloud<br/>AWS/Google Vertex/Azure Foundry<br/>(mainly for strict data residency/HIPAA)"]
+        DIRECT["🅰️ Direct Anthropic API: api.anthropic.com"]
+        CPAWS["🟠 Claude Platform on AWS: native features, AWS billing, no feature-lag"]
+        CLOUD["🟨 Claude Platform on cloud: AWS/Google Vertex/Azure Foundry (mainly for strict data residency/HIPAA)"]
     end
 
     subgraph L0["Level 0 · Foundation"]
-        MODELS["🧠 Claude models<br/><i>Mythos · Fable · Opus · Sonnet · Haiku</i>"]
+        MODELS["🧠 Claude models: Mythos · Fable · Opus · Sonnet · Haiku"]
     end
 
     %% --- Level 4 → Level 2/3 ---
-    CODE ==>|"uses agent SDK<br/>as harness"| ASDK
+    CODE ==>|"uses agent SDK as harness"| ASDK
     L4 ==> LOOP
 
     %% --- Level 3 → Level 2 ---
     CLI --> MGD
     CSDK --> MGD
-    CSDK -->|"API client for<br/>Messages API"| MSG
+    CSDK -->|"API client for Messages API"| MSG
 
     %% --- Level 2 internal: everything resolves to Messages ---
     ASDK ==>|"documented"| MSG
-    MGD -.->|"inferred — no<br/>other primitive"| MSG
+    MGD -.->|"inferred — no other primitive"| MSG
 
     %% --- Level 2 → Level 1 ---
     MSG ==> L1
 
     %% --- Level 1 → Level 0 (authentication layer) ---
-    DIRECT -->|"🔑 x-api-key<br/><i>Anthropic API key</i>"| MODELS
-    CPAWS -->|"🔑 AWS IAM · SigV4<br/><i>re-auth every 6h</i>"| MODELS
-    CLOUD -->|"🔑 AWS IAM · SigV4<br/><i>AWS-native roles</i>"| MODELS
+    DIRECT -->|"🔑 x-api-key: Anthropic API key"| MODELS
+    CPAWS -->|"🔑 AWS IAM · SigV4: re-auth every 6h"| MODELS
+    CLOUD -->|"🔑 AWS IAM · SigV4: AWS-native roles"| MODELS
 
     %% --- Custom use cases → the surface each one lands on ---
     YAMLGIT --> CLI
@@ -225,6 +225,8 @@ The core agents, the surfaces they extend into, the mechanisms that wire them up
 
 #### (b) ↕ Vertical — domain-specific: one domain each
 
+> ## TODO: before this, add somewhere: diff between claude skill vs connector vs plugin, key use cases, which to use when.
+
 Cowork tuned to a single domain, plus the solutions Anthropic packages **by industry**. Adopt these only when a requirement matches the domain **exactly** — "buy, don't build."
 
 | Item | What it is | Uniquely solves / made of | Exam |
@@ -295,7 +297,7 @@ One thing this map assumes without defining: what a **harness** actually is — 
 flowchart TB
     subgraph RAW["🚫 Model alone = a one-shot text generator (no harness)"]
         direction LR
-        R1["prompt in"] --> R2["🧠 model"] --> R3["text out — then it stops.<br/>no tool got run · nothing remembered ·<br/>no decision to continue"]
+        R1["prompt in"] --> R2["🧠 model"] --> R3["text out — then it stops. no tool got run · nothing remembered · no decision to continue"]
     end
     classDef bad fill:#C62828,color:#fff,stroke:#7f0000,stroke-width:2px
     class R1,R2,R3 bad
@@ -371,7 +373,7 @@ The overview lists these in an accordion. Grouped so they stick:
 
 ```mermaid
 mindmap
-  root(("🤖 Claude Code<br/>can..."))
+  root(("🤖 Claude Code can..."))
     Write code
       Automate the tedious backlog
         tests · lint fixes · merge conflicts
@@ -422,8 +424,8 @@ The two products split cleanly across the two certs — which is exactly why thi
 
 ```mermaid
 flowchart LR
-    PLAT["🏗️ Developer Platform<br/>Messages API · Managed Agents<br/>models · features · vision"]
-    CC["🤖 Claude Code<br/>surfaces · CLAUDE.md · skills<br/>hooks · MCP · subagents · CLI"]
+    PLAT["🏗️ Developer Platform: Messages API · Managed Agents models · features · vision"]
+    CC["🤖 Claude Code: surfaces · CLAUDE.md · skills hooks · MCP · subagents · CLI"]
     SDK["🌉 Agent SDK"]
 
     PLAT --> PD1["P-D1 Solution Design"]

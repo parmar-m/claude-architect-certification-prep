@@ -33,11 +33,11 @@ A line in CLAUDE.md saying "never run `terraform apply`" is a wish. A **deny rul
 
 ```mermaid
 flowchart TD
-    POL["🏛️ Managed policy<br/>/Library/Application Support/ClaudeCode/CLAUDE.md<br/><i>org-wide, IT-deployed</i>"] --> M["Merged instruction context<br/><i>concatenated, not overridden</i>"]
-    U["🏠 User<br/>~/.claude/CLAUDE.md<br/><i>you, all projects — NOT shared via git</i>"] --> M
-    P["📁 Project<br/>./CLAUDE.md or ./.claude/CLAUDE.md<br/><i>whole team, via version control</i>"] --> M
-    L["🔒 Local<br/>./CLAUDE.local.md<br/><i>you, this project — gitignored</i>"] --> M
-    P -. "@import standards files" .-> I["api-conventions.md<br/>testing.md · deployment.md"]
+    POL["🏛️ Managed policy: /Library/Application Support/ClaudeCode/CLAUDE.md: org-wide, IT-deployed"] --> M["Merged instruction context: concatenated, not overridden"]
+    U["🏠 User: ~/.claude/CLAUDE.md: you, all projects — NOT shared via git"] --> M
+    P["📁 Project: ./CLAUDE.md or ./.claude/CLAUDE.md: whole team, via version control"] --> M
+    L["🔒 Local: ./CLAUDE.local.md: you, this project — gitignored"] --> M
+    P -. "@import standards files" .-> I["api-conventions.md testing.md · deployment.md"]
     P -. "alternative to a monolith" .-> R[".claude/rules/ topic files"]
     classDef lvl fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef mod fill:#64B5F6,color:#000,stroke:#1976D2,stroke-width:2px
@@ -117,7 +117,7 @@ Reach for `/context` first when behaviour is inconsistent across sessions. `/mem
 
 ```mermaid
 flowchart LR
-    F["Editing Button.test.tsx"] --> MATCH{"paths: [&quot;**/*.test.*&quot;]<br/>match?"}
+    F["Editing Button.test.tsx"] --> MATCH{"paths: [&quot;**/*.test.*&quot;] match?"}
     MATCH -- yes --> LOAD["✅ testing-conventions rule loads"]
     MATCH -- no --> SKIP["rule stays out of context"]
     T["Editing terraform/main.tf"] --> MATCH2{"paths: [&quot;terraform/**/*&quot;]"}
@@ -145,10 +145,10 @@ flowchart LR
 ```mermaid
 flowchart TD
     T[Task arrives] --> Q{Scope?}
-    Q -- "single-file fix, clear stack trace,<br/>well-understood change" --> DE["⚡ Direct execution"]
-    Q -- "large-scale change, multiple valid<br/>approaches, architectural decisions,<br/>multi-file (45+) migrations" --> PM["🗺️ Plan mode<br/>explore safely → design → then execute"]
-    PM --> COMBO["Combine: plan the migration,<br/>then execute the planned approach"]
-    T --> V["Verbose discovery phase?"] --> EX["Explore subagent: isolate noisy<br/>output, return summaries"]
+    Q -- "single-file fix, clear stack trace, well-understood change" --> DE["⚡ Direct execution"]
+    Q -- "large-scale change, multiple valid approaches, architectural decisions, multi-file (45+) migrations" --> PM["🗺️ Plan mode: explore safely → design → then execute"]
+    PM --> COMBO["Combine: plan the migration, then execute the planned approach"]
+    T --> V["Verbose discovery phase?"] --> EX["Explore subagent: isolate noisy output, return summaries"]
     classDef de fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
     classDef pm fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef q fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -183,11 +183,11 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    PR[Pull request] --> CI["CI job:<br/>claude -p &quot;review this diff&quot;<br/>--output-format json --json-schema"]
-    CLAUDEMD["CLAUDE.md: testing standards,<br/>fixture conventions, review criteria"] --> CI
+    PR[Pull request] --> CI["CI job: claude -p &quot;review this diff&quot; --output-format json --json-schema"]
+    CLAUDEMD["CLAUDE.md: testing standards, fixture conventions, review criteria"] --> CI
     CI --> OUT["Machine-parseable findings"]
     OUT --> POST["Post as inline PR comments"]
-    PRIOR["Prior review findings in context →<br/>report only new/unaddressed issues"] --> CI
+    PRIOR["Prior review findings in context → report only new/unaddressed issues"] --> CI
     classDef ci fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef in fill:#64B5F6,color:#000,stroke:#1976D2,stroke-width:2px
     classDef io fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -263,11 +263,11 @@ This is the mechanism behind "block `process_refund` until identity is verified"
 
 ```mermaid
 flowchart TD
-    P["PreToolUse hook runs<br/>(before ANY permission check —<br/>even in bypassPermissions)"] --> M{"How does it answer?"}
-    M -- "exit 0 (no output)" --> N["No decision →<br/>normal permission flow applies<br/><i>(this is NOT auto-approve)</i>"]
-    M -- "exit 2 + reason on stderr" --> B["🚫 Blocked<br/>stderr fed back to Claude as feedback"]
+    P["PreToolUse hook runs (before ANY permission check — even in bypassPermissions)"] --> M{"How does it answer?"}
+    M -- "exit 0 (no output)" --> N["No decision → normal permission flow applies (this is NOT auto-approve)"]
+    M -- "exit 2 + reason on stderr" --> B["🚫 Blocked: stderr fed back to Claude as feedback"]
     M -- "exit 0 + JSON on stdout" --> J{"permissionDecision"}
-    J -- allow --> A["Skip the interactive prompt…<br/>⚠️ but deny rules still win"]
+    J -- allow --> A["Skip the interactive prompt… ⚠️ but deny rules still win"]
     J -- deny --> B
     J -- ask --> ASK["Show the permission prompt"]
     classDef block fill:#C62828,color:#fff,stroke:#7f0000,stroke-width:2px
@@ -292,15 +292,15 @@ Five hook `type`s exist, and they line up exactly with the deterministic-vs-prob
 ```mermaid
 flowchart LR
     subgraph DET["Deterministic — rule-based, no model judgment"]
-        C["command<br/>run a shell command"]
-        H["http<br/>POST event to a URL"]
-        MT["mcp_tool<br/>call a connected MCP tool"]
+        C["command: run a shell command"]
+        H["http: POST event to a URL"]
+        MT["mcp_tool: call a connected MCP tool"]
     end
     subgraph JUD["Judgment — a Claude model decides"]
-        PR["prompt<br/>single-turn yes/no (Haiku by default)"]
-        AG["agent<br/>multi-turn, can read files &amp; run cmds<br/><i>experimental</i>"]
+        PR["prompt: single-turn yes/no (Haiku by default)"]
+        AG["agent: multi-turn, can read files &amp; run cmds: experimental"]
     end
-    DET --> USE["Pick by: is the rule mechanical,<br/>or does it need judgment?"]
+    DET --> USE["Pick by: is the rule mechanical, or does it need judgment?"]
     JUD --> USE
     classDef det fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef jud fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
@@ -320,18 +320,18 @@ Hooks live in a `hooks` block in a settings file, keyed by event → `matcher` �
 ```mermaid
 flowchart TD
     subgraph FILES["Where you put the hook = its scope"]
-        U["~/.claude/settings.json<br/><i>all your projects · local, not shared</i>"]
-        P["PROJECT .claude/settings.json<br/><i>this project · commit to share with team</i>"]
-        L[".claude/settings.local.json<br/><i>this project · gitignored, personal</i>"]
-        POL["Managed policy settings<br/><i>org-wide, admin-controlled</i>"]
-        PLG["Plugin / Skill / Agent frontmatter<br/><i>active while that component is</i>"]
+        U["~/.claude/settings.json: all your projects · local, not shared"]
+        P["PROJECT .claude/settings.json: this project · commit to share with team"]
+        L[".claude/settings.local.json: this project · gitignored, personal"]
+        POL["Managed policy settings: org-wide, admin-controlled"]
+        PLG["Plugin / Skill / Agent frontmatter: active while that component is"]
     end
     U --> R["Merged hook set for the session"]
     P --> R
     L --> R
     POL --> R
     PLG --> R
-    R --> BROWSE["/hooks — READ-ONLY browser<br/>(edit JSON or ask Claude to change hooks)"]
+    R --> BROWSE["/hooks — READ-ONLY browser (edit JSON or ask Claude to change hooks)"]
     classDef team fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef pers fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
     classDef org fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
@@ -360,11 +360,11 @@ The team-versus-personal split is the same as CLAUDE.md in 3.1: **project `.clau
 
 ```mermaid
 flowchart LR
-    D["default / Manual<br/>reads only, prompts for the rest"] --> AE["acceptEdits<br/>+ file edits &amp; common fs cmds"]
-    AE --> PL["plan<br/>reads/explores, NO edits until you approve"]
-    PL --> AU["auto<br/>everything, with a classifier safety-net"]
-    AU --> DA["dontAsk<br/>only pre-approved tools; auto-DENY the rest"]
-    DA --> BP["bypassPermissions<br/>skip all checks — containers/VMs only"]
+    D["default / Manual: reads only, prompts for the rest"] --> AE["acceptEdits: + file edits &amp; common fs cmds"]
+    AE --> PL["plan: reads/explores, NO edits until you approve"]
+    PL --> AU["auto: everything, with a classifier safety-net"]
+    AU --> DA["dontAsk: only pre-approved tools; auto-DENY the rest"]
+    DA --> BP["bypassPermissions: skip all checks — containers/VMs only"]
     classDef safe fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef mid fill:#F9A825,color:#000,stroke:#F57F17,stroke-width:2px
     classDef danger fill:#C62828,color:#fff,stroke:#7f0000,stroke-width:2px
@@ -390,11 +390,11 @@ They are evaluated in a **fixed order — deny, then ask, then allow. The first 
 
 ```mermaid
 flowchart TD
-    CALL["Claude attempts a tool call"] --> DENY{"matches a<br/>deny rule?"}
-    DENY -- yes --> STOP["🚫 Blocked — always,<br/>in EVERY mode incl. bypass"]
-    DENY -- no --> ASK{"matches an<br/>ask rule?"}
-    ASK -- yes --> PROMPT["❓ Prompt the user<br/>(even if an allow rule also matches)"]
-    ASK -- no --> ALLOW{"matches an<br/>allow rule?"}
+    CALL["Claude attempts a tool call"] --> DENY{"matches a deny rule?"}
+    DENY -- yes --> STOP["🚫 Blocked — always, in EVERY mode incl. bypass"]
+    DENY -- no --> ASK{"matches an ask rule?"}
+    ASK -- yes --> PROMPT["❓ Prompt the user (even if an allow rule also matches)"]
+    ASK -- no --> ALLOW{"matches an allow rule?"}
     ALLOW -- yes --> GO["✅ Run without prompting"]
     ALLOW -- no --> MODE["fall back to the mode's baseline"]
     classDef stop fill:#C62828,color:#fff,stroke:#7f0000,stroke-width:2px
@@ -426,7 +426,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph PLUGIN["A plugin = one directory"]
-        M[".claude-plugin/plugin.json<br/><i>name · description · version</i>"]
+        M[".claude-plugin/plugin.json: name · description · version"]
         S["skills/  ·  commands/"]
         A["agents/"]
         H["hooks/hooks.json"]
@@ -434,7 +434,7 @@ flowchart TD
     end
     PLUGIN --> DIST{"How to share?"}
     DIST -->|dev/test| DIR["--plugin-dir ./my-plugin"]
-    DIST -->|team/community| MKT["Marketplace<br/>/plugin marketplace add &lt;repo&gt;<br/>→ /plugin install"]
+    DIST -->|team/community| MKT["Marketplace: /plugin marketplace add &lt;repo&gt; → /plugin install"]
     classDef box fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef out fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class M,S,A,H,MCP box
@@ -457,10 +457,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    M["1 · Managed / policy settings<br/><i>IT-deployed, org-wide — CANNOT be overridden</i>"] --> CLI["2 · Command-line args<br/><i>--settings, --model, --permission-mode…</i>"]
-    CLI --> L["3 · Local project<br/>.claude/settings.local.json <i>(gitignored, personal)</i>"]
-    L --> P["4 · Project<br/>.claude/settings.json <i>(committed, team)</i>"]
-    P --> U["5 · User<br/>~/.claude/settings.json <i>(all your projects)</i>"]
+    M["1 · Managed / policy settings: IT-deployed, org-wide — CANNOT be overridden"] --> CLI["2 · Command-line args: --settings, --model, --permission-mode…"]
+    CLI --> L["3 · Local project: .claude/settings.local.json (gitignored, personal)"]
+    L --> P["4 · Project: .claude/settings.json (committed, team)"]
+    P --> U["5 · User: ~/.claude/settings.json (all your projects)"]
     classDef managed fill:#512DA8,color:#fff,stroke:#311B92,stroke-width:2px
     classDef team fill:#1976D2,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef pers fill:#90A4AE,color:#000,stroke:#455A64,stroke-width:2px
