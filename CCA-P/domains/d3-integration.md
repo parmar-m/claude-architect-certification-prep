@@ -1,6 +1,6 @@
 # P-D3 · Integration (19%)
 
-The **largest CCA-P domain** covers RAG, connection protocols, Managed Agents, sandboxes, webhooks, MCP tunnels, the Files API, authentication, authorization, capability limits, performance trade-offs, and observability. RAG is the largest new topic beyond CCA-F.
+The **largest CCA-P domain** covers retrieval, enterprise connections, hosted agents, security, and observability. RAG is the largest new topic beyond CCA-F.
 
 **Builds on CCA-F:** [F-D2 Tool Design & MCP](../../CCA-F/domains/d2-tool-design-mcp.md).
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 3 objectives; prep course "Enterprise Integration & Production".
@@ -8,6 +8,8 @@ The **largest CCA-P domain** covers RAG, connection protocols, Managed Agents, s
 ---
 
 ## RAG pipeline design
+
+RAG separates **finding evidence** from **generating an answer**. Retrieval selects source material; generation uses that material. A stronger generation model cannot repair a stale index.
 
 ```mermaid
 flowchart LR
@@ -22,7 +24,7 @@ flowchart LR
         RET --> CTX["Context assembly (citations preserved)"]
         CTX --> LLM["Claude generates grounded, cited answer"]
     end
-    IX -. "re-index on refresh: #1 silent failure point" .-> RET
+    IX -. "Refresh documents and index together" .-> RET
     classDef ing fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef qry fill:#42A5F5,color:#000,stroke:#1565C0,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -31,10 +33,27 @@ flowchart LR
 ```
 
 **Key points:**
+
 - **Match chunking to the data:** Use overlapping semantic chunks for prose and structure-aware splits for tables, code, and structured documents. Small chunks lose context; large chunks weaken relevance.
-- **Match retrieval to the query:** Use keyword or hybrid search for exact identifiers and jargon, vector search for concepts, and hybrid search with reranking for both.
+- **Separate live-state queries from static knowledge queries:** Look up changing state directly rather than relying on a stale index.
 - A document refresh without correct re-indexing, or an embedding mismatch, can cause **confident but wrong answers without changing latency**. Check retrieval first.
 - **Retrieve only what each step needs** through MCP resources or targeted search. Do not place every document in one prompt. This improves cost, latency, and attention.
+
+**Chunking approaches:**
+
+| Approach | How it works | When to use it |
+|---|---|---|
+| Fixed-size | Split into uniform spans, optionally with overlap, regardless of structure | Homogeneous, unstructured text with weak natural boundaries; simple to operate |
+| Semantic | Split on meaning boundaries, topic shifts, or related sentence groups | Prose where chunks need to stand alone; reduces mid-idea cuts |
+| Hierarchical | Preserve sections and subsections; retrieve at the appropriate level | Structured documents such as contracts, manuals, and policies where section context matters |
+
+**Indexing strategies:** Match retrieval to the query; add reranking when needed.
+
+| Strategy | What it matches | When to use it |
+|---|---|---|
+| Dense (embeddings) | Semantic similarity | Paraphrases, intent, and concept matching |
+| Sparse (keyword, e.g. BM25) | Exact terms, identifiers, codes, and names | Part numbers, statute citations, or error codes |
+| Hybrid | Combines dense and sparse results | Mixed query patterns where exact matches and semantic similarity both matter |
 
 > **Embedding details** ([platform: embeddings](https://platform.claude.com/docs/en/build-with-claude/embeddings)). Anthropic does not provide a first-party embedding model; its documentation points to third-party **Voyage AI**.
 > - **Query and document embeddings use different settings:** Use `input_type="query"` for questions and `input_type="document"` for stored chunks. Omitting this reduces retrieval quality.
@@ -46,12 +65,27 @@ flowchart LR
 
 ## Connection protocol selection
 
+Choose the deployment route and interaction protocol separately. The route determines where inference runs and which features are available; the protocol determines how systems exchange tools or delegate work.
+
+### Deployment entry-point selection
+
+After compliance filtering, compare latency, cost, and the available route. Confirm feature availability and coverage for the specific configuration.
+
+| Platform | Latency profile | Compliance posture | When to pick it |
+|---|---|---|---|
+| Direct Anthropic API | New features typically arrive first; few additional hops | Confirm coverage by configuration | Default when procurement or residency does not require another route |
+| AWS Bedrock | Region-configurable; features may lag direct | AWS procurement and region rules require explicit configuration | AWS-standardized partner requiring in-region execution |
+| GCP Vertex AI | Region-configurable; features may lag direct | GCP procurement and region rules require explicit configuration | GCP-standardized partner using Vertex procurement |
+| Microsoft Foundry (Azure) | Depends on hosting: hosted-on-Azure runs in the partner's Azure environment; hosted-on-Anthropic routes to Anthropic infrastructure | Verify residency and coverage for the specific route | Procurement or residency requires that route |
+
+For multi-entry-point designs, document which route owns each task and why. Check model identifiers, feature availability, and regional endpoints before integration.
+
 ```mermaid
 flowchart TD
-    NEED{Integration need} --> T1["Model needs to USE enterprise systems as tools, reusable across agents/apps"] --> MCP["🔌 MCP: standardized tool/resource interface, discovery at connect time"]
+    NEED{Integration need} --> T1["Model needs reusable enterprise tools across agents/apps"] --> MCP["🔌 MCP: standardized tool/resource interface, discovery at connect time"]
     NEED --> T2["Deterministic system-to-system call, no model in the loop / batch scripting"] --> API["⚙️ Direct API / CLI: simplest, no protocol overhead"]
     NEED --> T3["Autonomous agents cooperating across boundaries"] --> A2A["🤝 Agent-to-agent: delegation between agent systems"]
-    MCP --> W["⚠️ Capability bloat check: every exposed tool widens the attack/misuse surface, so expose only what the role requires"]
+    MCP --> W["⚠️ Scope tools to the role: every exposed tool adds capability"]
     classDef p fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
     classDef warn fill:#FFA000,color:#000,stroke:#FF6F00,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
@@ -62,7 +96,7 @@ flowchart TD
 
 ## Managed Agents - the hosted-harness deployment choice
 
-> Source: [platform: managed-agents/overview](https://platform.claude.com/docs/en/managed-agents/overview). Managed Agents lets Anthropic host the agent loop and a secure sandbox where Claude can read files, run commands, browse the web, and execute code. See [primer Section 2](../../claude-stack.md#2-what-a-harness-is--and-why-an-agent-needs-one) for the build-versus-adopt choice.
+> Source: [platform: managed-agents/overview](https://platform.claude.com/docs/en/managed-agents/overview). Managed Agents lets Anthropic host the agent loop and a secure sandbox where Claude can read files, run commands, browse the web, and execute code. See [primer Section 2](../../claude-stack.md#2-what-a-harness-is---and-why-an-agent-needs-one) for the build-versus-adopt choice.
 
 ```mermaid
 flowchart TD
@@ -81,19 +115,21 @@ flowchart TD
     class CLOUD,SELF sb
 ```
 
-**Four concepts:** **Agent** is the reusable model, prompt, tools, MCP, and skills configuration. **Environment** is the cloud or self-hosted sandbox where it runs. **Session** is one running task with persistent files and history. **Events** are messages streamed through SSE and stored by the service.
+**State model:** Reuse an agent configuration across sessions. Each session retains task files and history in its environment; events record and stream the interaction.
 
 **Use Managed Agents when you need:**
-- **Long-running / async** - minutes-to-hours tasks with many tool calls (the canonical fit, vs. the Messages API's request/response shape).
-- **Minimal infra** - you don't want to build a loop, sandbox, or tool-execution layer.
-- **Stateful sessions** - persistent filesystem + conversation history across interactions; sessions **resume cleanly after pauses**.
-- **Scheduled execution** - recurring runs on a cron via [scheduled deployments](https://platform.claude.com/docs/en/managed-agents/scheduled-deployments) (the platform-API cousin of Claude Code *Routines* - Anthropic-infra, survives your machine being off; cf. [F-D1 field guide](../../CCA-F/domains/d1-agentic-architecture.md)).
-- **Multi-agent** - a coordinator spawning child agent threads is a first-class [orchestration](https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration) feature, not something you wire yourself (the hosted echo of [F-D1 Sec. 1.2](../../CCA-F/domains/d1-agentic-architecture.md)).
+
+- **Long-running tasks:** Minutes-to-hours execution with many tool calls, beyond a single Messages API request/response.
+- **Hosted execution:** The service supplies the agent loop, sandbox, and tool-execution layer.
+- **Stateful sessions:** Files and conversation history persist across interactions and pauses.
+- **Scheduled execution:** [Scheduled deployments](https://platform.claude.com/docs/en/managed-agents/scheduled-deployments) run on cron using Anthropic infrastructure, independently of the client machine. Compare Claude Code Routines in [F-D1](../../CCA-F/domains/d1-agentic-architecture.md).
+- **Multi-agent execution:** Built-in [orchestration](https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration) lets a coordinator spawn child threads ([F-D1 Sec. 1.2](../../CCA-F/domains/d1-agentic-architecture.md)).
 
 **Governance limits:**
+
 - **Use a self-hosted sandbox for data residency or compliance** when data cannot leave your infrastructure.
 - **Hosted Managed Agents is stateful and is not currently ZDR or HIPAA-BAA eligible.** It stores history, sandbox state, and output on the server. For ZDR or HIPAA requirements, use the Messages API or a self-hosted environment.
-- **Permission policies** gate which tools/actions a session may take; **[vaults](https://platform.claude.com/docs/en/managed-agents/vaults)** hold the credentials it authenticates with - least privilege ([below](#security-authnauthz--least-privilege)) applies to a hosted agent exactly as to a self-built one.
+- **Permission policies** gate session actions; **[vaults](https://platform.claude.com/docs/en/managed-agents/vaults)** supply credentials. Scope both to the task ([least privilege](#security-authnauthz--least-privilege)).
 
 ## Webhooks - the async notification pattern
 
@@ -113,11 +149,11 @@ sequenceDiagram
 ```
 
 **Key points:**
+
 - **Events contain `type` and `id`, not the full object.** Fetch the resource by ID after receiving an event. This keeps events small and avoids using stale retry data.
-- **Key session events:** `session.status_run_started`, **`session.status_idled`** (awaiting input - e.g. a tool-permission approval or a new user message: the human-in-the-loop signal), `session.status_rescheduled` (transient error, auto-retrying), `session.status_terminated` (done or errored). Multi-agent threads add `session.thread_created/idled/terminated`.
+- **Session events:** `session.status_run_started`, **`session.status_idled`** (awaiting input - e.g. a tool-permission approval or a new user message: the human-in-the-loop signal), `session.status_rescheduled` (transient error, auto-retrying), `session.status_terminated` (done or errored). Multi-agent threads add `session.thread_created/idled/terminated`.
 - **Delivery is at least once and unordered.** Remove duplicates using `event.id` and do not infer state from arrival order. Delivery is attempted up to three times, so webhooks are not a complete event log. Fetch or list resources when every transition matters.
 - **Security:** verify the `whsec_`-signed signature (SDK `unwrap()` throws on bad/stale >5-min payloads); endpoints must be **HTTPS on a public host**; a `3xx` or non-public IP **auto-disables** the endpoint.
-- **Why it's here:** webhooks are the glue that makes long-running Managed Agents usable in a real integration - the async counterpart to the Messages API's synchronous `stop_reason` loop.
 
 ## MCP tunnels - reaching an MCP server behind your firewall
 
@@ -146,8 +182,9 @@ flowchart LR
 ```
 
 **Key points:**
+
 - **"Outbound-only" describes the connection, not request direction.** `cloudflared` connects outward on port 7844, so no inbound firewall port is required. MCP requests then travel inward over that existing connection.
-- **Inner TLS keeps payloads private from the transport.** A second TLS handshake runs between Anthropic's backend and *your* proxy, signed by a CA **you** registered; Cloudflare's edge sees only ciphertext. The **proxy is the first place inside your network where MCP payloads are readable** - a clean shared-responsibility boundary.
+- **Inner TLS defines the payload boundary.** A second TLS handshake runs between Anthropic's backend and your proxy using a CA you registered. Cloudflare's edge sees ciphertext; your proxy terminates TLS and can read MCP payloads.
 - **Keep the three MCP connection methods separate** (see [F-D2 Sec. 2.4](../../CCA-F/domains/d2-tool-design-mcp.md)):
 
 | Mechanism | What it connects | Use when |
@@ -163,24 +200,39 @@ flowchart LR
 > Source: [platform: files](https://platform.claude.com/docs/en/build-with-claude/files) (beta). The Files API avoids uploading the same PDF or dataset with every request.
 
 **Key points:**
-- **Create-once, use-many:** upload → get a **`file_id`** → reference it by ID in Messages (`document` / `image` / `container_upload` blocks) instead of re-embedding bytes each call. This pays off most for multi-turn document QA and for feeding datasets to the [code execution tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool).
+
+- **Reference by ID:** Upload once, then use the returned `file_id` in Messages (`document`, `image`, or `container_upload` blocks). Reuse it for multi-turn document Q&A or datasets passed to [code execution](https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool).
 - **Cost:** Upload, list, get, and delete operations are free. File content is billed as input tokens when used. The Files API saves bandwidth and upload work, not token cost. Combine it with **prompt caching** ([P-D2](d2-models-prompting-context.md)) for repeated stable documents.
 - **Limits & lifecycle:** **500 MB/file**, **500 GB/org**; files are immutable (re-upload to change), scoped to the **workspace** (any key in it can reference them), and persist until you `DELETE` them. Uploaded files are **not downloadable** - only files **generated** by skills or code execution have `downloadable: true`.
-- **Availability gotcha:** on the Claude API, Claude Platform on AWS, and Microsoft Foundry (Hosted-on-Anthropic) - **not** currently on Amazon Bedrock or Google Vertex. A scenario that mandates Bedrock/Vertex deployment can't assume the Files API.
-- **Not everything is a `document` block:** PDFs/plain-text → `document`; images → `image`; datasets for analysis → `container_upload` (code execution). For `.docx`/`.xlsx`, convert to text/PDF first.
+- **Platform availability:** on the Claude API, Claude Platform on AWS, and Microsoft Foundry (Hosted-on-Anthropic) - **not** currently on Amazon Bedrock or Google Vertex. A scenario that mandates Bedrock/Vertex deployment can't assume the Files API.
+- **Choose the content block by file type:** PDFs/plain-text → `document`; images → `image`; datasets for analysis → `container_upload` (code execution). For `.docx`/`.xlsx`, convert to text/PDF first.
 
 ## Security: authN/authZ & least privilege
 
+Filter delivery routes by compliance obligations, including attorney-client privilege, before comparing cost or implementation effort. Review five integration layers; see [P-D5 compliance controls](d5-governance-safety-risk.md#compliance-regimes) for obligations and evidence.
+
+| Layer | Architect's decision | What breaks when wrong |
+|---|---|---|
+| Compliance | Which routes and entry points meet HIPAA, GDPR, FedRAMP, data-residency, or BAA requirements | The chosen route fails legal or security review |
+| Identity & SSO | Where the identity boundary sits; inject identity server-side | A user-asserted role in the prompt can be manipulated |
+| Authorization | Which capabilities and data each user or role can access | Claude bypasses the existing access model |
+| Data handling & PII | What must enter context versus what can be retrieved on demand | Sensitive fields land in plaintext application logs |
+| Observability | What must be reconstructable after an incident | An unlogged path leaves no evidence when something breaks |
+
 **Key points:**
+
 - Review authentication **at each integration point:** identify the user or service, credential storage, and token scope. Use environment variables or secret managers, never committed configuration.
-- **Least privilege = remove capabilities the role doesn't need**, not logging around them, not confirmation prompts, not "a better model" (official sample 1). Same instinct as scoped tool sets in [F-D2 Sec. 2.3](../../CCA-F/domains/d2-tool-design-mcp.md).
-- Common exam gap-findings: agent runs with admin-scope service account; tokens shared across tenants; tool exposes destructive operations to a read-only workflow.
+- **Least privilege:** Remove tools each role or subagent does not need. Logging, confirmation, and a larger model do not remove unnecessary capability (official sample 1; [F-D2 Sec. 2.3](../../CCA-F/domains/d2-tool-design-mcp.md)).
+- Check for permission and isolation failures: agent runs with admin-scope service account; tokens shared across tenants; tool exposes destructive operations to a read-only workflow.
+- **Data minimization:** Include only fields needed for the task. A clinical-intake summarizer needs presenting concerns, medications, and allergies, but may not need SSN or insurance ID; unnecessary fields can end up in plaintext logs.
+- **Integration review example:** For a multi-tenant support agent, flag these risks: Claude Code used as a customer-facing backend, a shared API key across tenants, capability checks based on unverified user claims, and account numbers or emails in request logs. Server-side authentication and per-tenant storage isolation are sound components.
 
 ## Accuracy–latency trade-offs & observability
 
 - Every extra stage, such as reranking, verification, or a larger model, trades cost and latency for accuracy. **Justify it against the stated SLA.**
 - Levers: model tier per step · caching · parallel retrieval · streaming for perceived latency · batch for offline volume.
-- **Observability at scale:** log prompts/completions (PII-scrubbed), tool calls, retrieval hits + scores, token/cost per request, per-stage latency; trace IDs across agent/tool hops; dashboards on quality + cost + latency; sampled human review of production outputs (ties into [P-D4](d4-evaluation-testing-optimization.md)).
+- Use the [P-D4 monitoring checklist](d4-evaluation-testing-optimization.md#monitoring--observability) for logs, traces, dashboards, and sampled review. Scrub PII from prompts and completions before logging.
+- Make four things reconstructable: **request** (model, version, token count), **response** (tokens, latency, stop reason), **context** (user role, session, caching), and **outcome** (whether the downstream system accepted it). Observability can be a security-team prerequisite for approving agent actions.
 
 ---
 

@@ -1,6 +1,6 @@
 # P-D2 · Claude Models, Prompting & Context Engineering (13%)
 
-Model selection, prompt structure, technique choice, and token and cost control through caching, modular prompts, and Skills.
+Select model capacity and reasoning effort, define prompt contracts, and control context and token cost.
 
 **Builds on CCA-F:** [F-D4 Prompting & Structured Output](../../CCA-F/domains/d4-prompting-structured-output.md) · [F-D5 Context & Reliability](../../CCA-F/domains/d5-context-reliability.md).
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 2 objectives.
@@ -8,6 +8,8 @@ Model selection, prompt structure, technique choice, and token and cost control 
 ---
 
 ## Model selection trade-offs
+
+Model capacity, reasoning effort, and context size control different things: task capability, reasoning depth, and available input space. Evaluate each against the same task and quality target.
 
 ```mermaid
 flowchart TD
@@ -37,21 +39,23 @@ flowchart TD
 | `opusplan` | **hybrid** | Opus **while planning**, auto-switches to Sonnet **for execution** |
 | `<family>[1m]` | extended context | `sonnet[1m]` / `opus[1m]` → **1M-token** window for long sessions |
 
-> **Beyond the aliases: Mythos.** The table lists selectable aliases. **Mythos** is a separate higher tier with the same underlying model as Fable but fewer guardrails, limited access, and premium pricing. Choose Opus or Fable for general availability. See [Sec. 1](../../claude-stack.md#1-the-map--where-everything-sits).
+> **Beyond the aliases: Mythos.** The table lists selectable aliases. **Mythos** is a separate higher tier with the same underlying model as Fable but fewer guardrails, limited access, and premium pricing. Choose Opus or Fable for general availability. See [Sec. 1](../../claude-stack.md#1-the-map---where-everything-sits).
 
 **Architecture choices:**
+
 - **`opusplan`** tiers models within one session: stronger reasoning for design, lower-cost reasoning for implementation. Each plan-mode toggle changes models and misses the cache. See [F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md).
-- **Effort level** (`low · medium · high · xhigh · max`, default `high`) is separate from model choice. Raise it for deeper reasoning and lower it to reduce cost and latency. Try more effort before moving to a larger model. See the [thinking subsection](#thinking--effort-at-the-api-level-the-other-side-of-the-same-dial).
+- **Effort level** (`low · medium · high · xhigh · max`, default `high`) is separate from model choice. Raise it for deeper reasoning and lower it to reduce cost and latency. Try more effort before moving to a larger model. See [API thinking and effort](#thinking--effort-at-the-api-level).
 - **Extended context (`[1m]`)** increases window size, not model ability. Use it for long sessions. Use multiple passes for attention or quality problems. See [F-D4 Sec. 4.6](../../CCA-F/domains/d4-prompting-structured-output.md).
 - **Fallback chains** (`--fallback-model` / `fallbackModel` setting, ≤3) = availability resilience: on overload/unavailable/server error, switch for that turn only. Distinct from **automatic content fallback** (Fable → provider's default Opus when a safety classifier flags a request).
 
-### Thinking & effort at the API level (the other side of the same dial)
+### Thinking & effort at the API level
 
-> Source: [platform: thinking-steering-and-cost](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost) + [effort](https://platform.claude.com/docs/en/build-with-claude/effort). The table above covers Claude Code. The **Messages API** uses the same reasoning control with different mechanics.
+> Sources: [thinking-steering-and-cost](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost) · [effort](https://platform.claude.com/docs/en/build-with-claude/effort). The **Messages API** exposes reasoning controls through request parameters.
 
-**Thinking adapts to each request.** With `thinking: {type: "adaptive"}`, the model decides whether to think and how deeply based on complexity. A simple turn may have no thinking block, so application logic must not require one. This works well for mixed simple and complex requests.
+**Adaptive thinking** (`thinking: {type: "adaptive"}`) adjusts reasoning depth to request complexity. Simple turns may omit the thinking block; application logic must allow this.
 
 **Three steering levers, in order:**
+
 1. **`effort`** at `output_config.effort` is the main calibrated control. It uses the same `low…max` range. On the API, `max` and `xhigh` always think, while `low` may skip thinking on simple turns. Prefer this control over wording-sensitive prompt changes.
 2. **System-prompt guidance** changes the threshold for the whole conversation.
 3. **Per-message guidance** controls one turn, such as "think hard" or "answer directly". This can vary planning and routine turns without changing request parameters or breaking the prompt cache.
@@ -70,6 +74,7 @@ flowchart TD
 ```
 
 **Cost control:**
+
 - **There is no separate thinking-token budget.** `max_tokens` limits **thinking and response combined**, while `effort` guides how much reasoning to use. Current models no longer use manual `budget_tokens`.
 - A limit sized for a direct answer may be too small when Claude thinks, causing `stop_reason: "max_tokens"`. Raise `max_tokens` when the reasoning is needed, or lower `effort` when it is not.
 - **All thinking tokens are billed**, even when they are hidden or summarized. Check `usage.output_tokens_details.thinking_tokens` to measure them.
@@ -77,11 +82,15 @@ flowchart TD
 
 ## Prompt architecture
 
-- **System prompt** = role, constraints, policies, output contract; **templates** = parameterized reusable prompts; **guardrails** = instructed refusals + output schemas + post-validation (defense in depth with [P-D5](d5-governance-safety-risk.md)).
-- Technique ladder: **zero-shot** (capable models, clear tasks) → **few-shot** (format consistency, ambiguous-case judgment, see [F-D4 Sec. 4.2](../../CCA-F/domains/d4-prompting-structured-output.md)) → **chain-of-thought** (multi-step reasoning: "think step by step" / structured reasoning fields).
-- Explicit categorical criteria beat vague quality adjectives, the same principle the Foundations exam drills ([F-D4 Sec. 4.1](../../CCA-F/domains/d4-prompting-structured-output.md)).
+- **System prompt:** Define the role, constraints, policies, and output contract.
+- **Templates:** Parameterize reusable instructions.
+- **Guardrails:** Combine refusal instructions, output schemas, and post-validation ([P-D5](d5-governance-safety-risk.md)).
+- **Choose prompting techniques by the failure:** Use zero-shot instructions for clear tasks, few-shot examples for inconsistent formats or ambiguous judgments ([F-D4 Sec. 4.2](../../CCA-F/domains/d4-prompting-structured-output.md)), and chain-of-thought guidance for multi-step reasoning.
+- Define categorical criteria the model can apply. Vague adjectives leave the decision threshold unspecified ([F-D4 Sec. 4.1](../../CCA-F/domains/d4-prompting-structured-output.md)).
 
-## Prompt caching: the #1 cost/latency lever
+## Prompt caching
+
+Repeated input still costs tokens and processing time. Caching reuses an unchanged prefix; place stable content before fields that vary between requests.
 
 ```mermaid
 flowchart LR
@@ -100,9 +109,7 @@ flowchart LR
     class B1,B2,MISS bad
 ```
 
-**Key point:** If every request sends the same large prompt and policy document, place stable content first and enable prompt caching. Truncation loses policy details, while few-shot formatting does not create a reusable prefix.
-
-**The API-level numbers** ([platform: prompt-caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)) - Claude Code manages caching for you ([F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md)), but on the Messages API you place breakpoints yourself, and these are the figures an exam can quote:
+**API cache settings and pricing** ([prompt-caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)). Place breakpoints on the Messages API; Claude Code manages caching for you ([F-D5 Sec. 5.8](../../CCA-F/domains/d5-context-reliability.md)).
 
 | Knob | Value |
 |---|---|
@@ -114,27 +121,29 @@ flowchart LR
 | **Cache read** price | **0.1×** base input (the ~90% saving) |
 | What's cacheable | `tools` · `system` · `messages` (text, images, documents, tool calls/results) |
 
-**Important cache mechanics:**
-- **Invalidation is hierarchical: `tools` → `system` → `messages`.** A change high in the prefix busts everything after it. Changing **tool definitions** invalidates the entire cache; toggling tools/citations invalidates system + messages; `tool_choice` or image changes invalidate only messages. This is *why* the layout diagram orders static→dynamic: put the most stable content (tools, system, policy) first so the volatile user turn is all that recomputes.
-- **The write-to-read ratio determines savings.** A five-minute cache write costs **1.25×**, while each read costs **0.1×**. Caching helps only when the prefix is reused enough. A prefix that changes every request pays the write cost without receiving any reads.
-- **`effort` and thinking config are part of the cache key** (see the thinking section above) - hold them steady across a conversation.
+**Cache mechanics:**
+
+- **Invalidation is hierarchical: `tools` → `system` → `messages`.** A change high in the prefix invalidates everything after it. Changing **tool definitions** invalidates the entire cache; toggling tools/citations invalidates system + messages; `tool_choice` or image changes invalidate only messages. Keep stable tools, system instructions, and policy before the changing user turn.
+- **Reuse determines savings.** A prefix that changes every request pays the write premium without benefiting from reads. Keep effort and thinking settings stable too ([above](#thinking--effort-at-the-api-level)).
 - Track it with `cache_creation_input_tokens` (write) vs `cache_read_input_tokens` (read): persistently high creation = something keeps changing your prefix.
 
 ## Context window & token optimization
 
+A larger window increases capacity. It does not remove irrelevant content or ensure that important facts receive attention.
+
 - Trim verbose tool outputs to relevant fields before they enter context; persist key facts in structured blocks ([F-D5 Sec. 5.1](../../CCA-F/domains/d5-context-reliability.md)).
-- Position-aware layout: key findings at the start, explicit section headers; the lost-in-the-middle effect is on both exams.
+- Put key findings near the start and use explicit section headers. Important facts buried in the middle may receive less attention.
 - Budget context deliberately: retrieval brings the *relevant* slice instead of pasting whole corpora; summaries carry long histories.
 
 ## Prompt reuse strategies
 
 | Strategy | What it is | Reach for it when |
 |---|---|---|
-| **Prompt caching** | Reuse of a stable prefix across requests | Same large system prompt/policy on every call |
+| **[Prompt caching](#prompt-caching)** | Reuse of a stable prefix across requests | Same large system prompt/policy on every call |
 | **Modular prompts** | Composable template fragments (role + policy + task + format) | Many similar workflows share components |
 | **Skills** | Packaged instructions + resources loaded on demand | Task-specific workflows teams reuse; keep always-on context lean |
 
-**Key point:** Skills load only when needed, while CLAUDE.md and system prompts are always present. This supports reuse without filling every context ([F-D3 Sec. 3.2](../../CCA-F/domains/d3-claude-code.md)).
+**Context distinction:** Skills load on demand; CLAUDE.md and system prompts are always present ([F-D3 Sec. 3.2](../../CCA-F/domains/d3-claude-code.md)).
 
 ---
 

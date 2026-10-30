@@ -1,6 +1,6 @@
 # P-D1 · Solution Design & Architecture (17%)
 
-Turning a business problem into a Claude architecture: choose the right pattern, design the full flow, and connect it to business value.
+Choose an execution pattern, place validation and tools at the right boundaries, and measure the design against business requirements.
 
 **Builds on CCA-F:** [F-D1 Agentic Architecture](../../CCA-F/domains/d1-agentic-architecture.md) (orchestration mechanics).
 **Source:** official [CCA-P Exam Guide](../../official-exam-guides/cca-p-exam-guide.pdf), Domain 1 objectives; prep course "Claude Platform & Solution Design".
@@ -9,7 +9,7 @@ Turning a business problem into a Claude architecture: choose the right pattern,
 
 ## End-to-end architecture shape
 
-Most exam solutions follow the same structure. Know where each concern belongs:
+Place each concern in the appropriate pipeline stage:
 
 ```mermaid
 flowchart LR
@@ -27,15 +27,17 @@ flowchart LR
     class IN,OUT io
 ```
 
-## Pattern selection (the core P-D1 skill)
+## Pattern selection
+
+The deciding factor is **who controls the next step**. A workflow follows application-defined steps; an agent chooses actions from intermediate results. Retrieval supplies knowledge to either pattern.
 
 ```mermaid
 flowchart TD
-    Q{"Is the sequence of steps known in advance?"} -- yes --> W["⛓️ Workflow: fixed pipeline of LLM calls: predictable · testable · cheapest"]
+    Q{"Is the sequence of steps known in advance?"} -- yes --> W["⛓️ Workflow: application-defined steps · predictable execution · testable stages"]
     Q -- no --> Q2{"Does the model need to decide actions dynamically with tools?"}
     Q2 -- yes --> A["🤖 Agentic: model-driven loop with tools: flexible · higher cost/latency · needs guardrails + observability"]
     Q2 -- "no, just needs external knowledge" --> AL["📚 Augmented LLM: single call + retrieval/tools (RAG), grounded answers"]
-    W --> RULE["Rule of thumb: choose the SIMPLEST pattern that meets requirements; agents are the exception, not the default"]
+    W --> RULE["Choose the simplest pattern that meets requirements"]
     A --> RULE
     AL --> RULE
     classDef w fill:#5C6BC0,color:#fff,stroke:#303F9F,stroke-width:2px
@@ -47,23 +49,34 @@ flowchart TD
 ```
 
 **Key points:**
+
 - **Workflow:** A fixed sequence with an LLM at each step, such as classify → extract → draft. Use it when auditability and predictable cost matter.
 - **Agentic:** The model plans and acts in a loop (see [F-D1 Sec. 1.1](../../CCA-F/domains/d1-agentic-architecture.md)). Use it only when decisions must adapt during the task.
+- **Agent guardrails:** Set per-turn token budgets, maximum tool-call counts, and explicit stopping criteria. Expose only the tools needed.
 - **Augmented LLM:** One model call supported by retrieved information or tool results. This is the common RAG pattern for Q&A and knowledge tasks.
-- Phrases often reveal the answer. "Steps are always the same" suggests a workflow. "Actions depend on what it finds" suggests an agent.
+- **Document processing:** Route low-confidence extractions to a human review queue.
 
 ## Multi-agent orchestration & decomposition
 
 Apply the CCA-F principles at the solution-design level:
 
-- Hub-and-spoke coordination, isolated subagent contexts, explicit context passing, parallel delegation ([F-D1 Sec. 1.2–1.3](../../CCA-F/domains/d1-agentic-architecture.md)).
+- Use a coordinator to delegate and synthesize. Isolate subagent contexts, pass required context explicitly, and parallelize independent work ([F-D1 Sec. 1.2–1.3](../../CCA-F/domains/d1-agentic-architecture.md)).
 - **Use multiple agents when:** The task has separate specialities, one context cannot hold the work, or roles need different tool permissions.
 - **Do not use them when:** One agent with a clear prompt and scoped tools is enough. Multiple agents add cost, delay, and more failure points.
-- Decomposition techniques: split by sub-problem, by document/data partition, or by pipeline stage; fixed chains for predictable flows, dynamic decomposition for open-ended ones ([F-D1 Sec. 1.6](../../CCA-F/domains/d1-agentic-architecture.md)).
+- Split work by sub-problem, data partition, or pipeline stage. Use fixed chains for predictable flows and dynamic decomposition for open-ended work ([F-D1 Sec. 1.6](../../CCA-F/domains/d1-agentic-architecture.md)).
+
+Assign an owner to each failure boundary so timeouts and empty results are retried or flagged, not silently lost.
+
+| Failure | Where it lands | Design response |
+|---|---|---|
+| Malformed or empty subagent result | Subagent boundary (recoverable) | Validate each result; retry or reroute the failed unit, or record the gap |
+| Conflicting subagent results | Synthesis step (recoverable) | Apply an explicit conflict-resolution rule or escalate to a human |
+| Orchestrator loses the goal or synthesis state | Orchestrator (often unrecoverable) | Protect state and checkpoint progress so a failed run can resume |
+| Traces fragment across agents | Observability (cross-cutting) | Propagate a shared trace ID to reconstruct the run end to end |
 
 ## Business value pillars
 
-Architecture recommendations must map to the value pillar the stakeholder cares about:
+A design can improve accuracy while exceeding its cost or latency budget. Define the required outcome before comparing architectures:
 
 ```mermaid
 mindmap
@@ -85,7 +98,7 @@ mindmap
       availability targets
 ```
 
-**Key point:** A technically strong design is still wrong if it ignores the stated business goal. Connect every trade-off to the value pillar in the question.
+**Decision rule:** Prefer the design that meets the stated goal within its constraints. Additional stages need a measured benefit.
 
 ---
 

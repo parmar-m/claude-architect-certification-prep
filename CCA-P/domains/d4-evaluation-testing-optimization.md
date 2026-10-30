@@ -9,6 +9,8 @@ Defining metrics, building evaluation sets, testing changes, finding failure cau
 
 ## The evaluation loop
 
+Evaluation measures behavior against a defined target. Monitoring checks whether that behavior holds under production inputs; controlled experiments test whether a change improves it.
+
 ```mermaid
 flowchart LR
     DEF["1️⃣ Define metrics: accuracy · latency · cost · safety · security"] --> DS["2️⃣ Build eval dataset: golden sets · edge cases · real production samples"]
@@ -21,12 +23,29 @@ flowchart LR
 ```
 
 **Key points:**
+
 - **Define metrics before optimizing.** Choose metrics for the stakeholder's concern: safety for compliance, latency for users, or cost for finance.
+- **Production readiness:** A demo does not establish performance at scale. Evaluate quality, estimate cost and latency at expected volume, and document failure modes with mitigations such as retries, fallbacks, and circuit breakers.
+- Write evals before production code, keep golden sets current, and gate model swaps and prompt revisions on results.
 - **Use several evaluation methods:** fixed graders for structure and facts, LLM judges with calibrated rubrics for open-ended quality, and human review for high-risk samples.
 - Evaluation sets need **edge cases and real production samples**. Refresh them as usage changes. Overall scores can hide failures, so also measure each input type ([F-D5 Sec. 5.5](../../CCA-F/domains/d5-context-reliability.md)).
-- A/B changes **one variable at a time**; hold the eval set constant; watch for regression on previously-passing segments.
 
-## Failure diagnosis (the highest-yield skill)
+### A/B testing
+
+Change **one variable at a time**, hold the eval set constant, and check previously passing segments for regressions. State a falsifiable hypothesis, such as increasing task success by 5% without degrading p95 latency.
+
+| Component | Requirement | Risk if missing |
+|---|---|---|
+| Hypothesis | Falsifiable; names treatment, metric, and threshold | No defined condition for success or failure |
+| Treatment/control assignment | Random and consistent per user or session | Groups may not be comparable |
+| Primary metric | Choose before the experiment | Selecting a favorable metric afterward biases the conclusion |
+| Sample size | Size for the minimum detectable effect | An underpowered test cannot distinguish signal from noise |
+
+Use **live A/B** for real user signals when traffic is sufficient and exposure to a worse version is acceptable. Use **shadow testing** for high-stakes, regulated, or low-traffic settings: run in parallel, log only, and score offline.
+
+## Failure diagnosis
+
+Start with the changed component and trace its inputs and outputs. Similar symptoms can originate in retrieval, prompts, model behavior, or orchestration.
 
 ```mermaid
 flowchart TD
@@ -44,24 +63,34 @@ flowchart TD
     class SYM,Q1,HAL n
 ```
 
-**Key point:** If RAG becomes confidently wrong after a **document refresh** while the model and latency stay unchanged, inspect **retrieval and indexing** first.
+| Failure | Response |
+|---|---|
+| Prompt failure | Identify missing or conflicting instructions; revise them and rerun affected evals |
+| Hallucination | Ground, retrieve, or verify rather than rely on stronger instructions |
+| Model mismatch | Select a model using evals as a gate |
+| Orchestrator-workers failure | Trace across the orchestrator and workers |
 
 ## Optimization levers
 
-| Lever | Wins | Watch out |
+Optimize the measured bottleneck while preserving the quality target. Cost, wall-clock latency, and perceived latency are separate metrics.
+
+| Lever | Benefit | Constraint |
 |---|---|---|
 | Prompt caching (stable prefix) | Cost + time-to-first-token | Requires stable ordering ([P-D2](d2-models-prompting-context.md)) |
 | Model tiering / routing | Cost at scale | Validate per-tier quality with evals |
 | Batch API for offline volume | 50% cost | No latency SLA, never for blocking flows ([F-D4 Sec. 4.5](../../CCA-F/domains/d4-prompting-structured-output.md)) |
-| Trim context / retrieval instead of stuffing | Cost + accuracy (lost-in-middle) | Don't trim provenance/citations |
+| Trim context / retrieve relevant material | Cost + attention to relevant facts | Preserve provenance and citations |
 | Streaming | Perceived latency | Doesn't reduce cost |
 | Parallel tool/retrieval calls | Wall-clock latency | Rate limits, ordering dependencies |
 
 ## Monitoring & observability
 
+- Cover request tracing, metric aggregation, anomaly detection, and change attribution. Retain per-request details alongside dashboards: aggregates can hide a costly minority of calls.
 - Log the prompt version, model, tokens, cost, stage latency, retrieval results and scores, tool calls, output, and validation result for each request.
-- **Trace IDs across multi-agent/tool hops**; alert on drift in cost, latency, refusal rate, validation-failure rate.
-- Sampled human review of production output feeds new eval cases, closing the loop.
+- **Use a shared trace ID across orchestrator, worker, and tool hops**; alert on drift in cost, latency, refusal rate, validation-failure rate.
+- Add failures found in sampled production review to the eval set.
+- **Discernment:** Classify output as acceptable, needing revision, or needing override; feed decisions into evals and monitoring. Metrics alone do not establish output quality.
+- At design time, map technical metrics to stakeholder business metrics, such as task success rate to first-contact resolution.
 
 ---
 

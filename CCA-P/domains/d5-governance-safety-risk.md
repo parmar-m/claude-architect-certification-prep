@@ -8,7 +8,7 @@ This domain covers guardrails, common LLM failures, human review, compliance, an
 
 ## Guardrails: defense in depth
 
-One control is not enough. Use several layers and enforce critical rules with deterministic checks.
+Model instructions influence behavior but do not authorize actions. Enforce identity, scope, and business limits before a tool executes. Layer input and output checks around that boundary; trained refusals do not define partner-specific policy.
 
 ```mermaid
 flowchart TD
@@ -25,6 +25,12 @@ flowchart TD
     class IN,OUT,MON mon
 ```
 
+| Decision point | Question and timing | Model-based check | Deterministic check |
+|---|---|---|---|
+| Input screening | Before the model call: should the request reach the model? | Classify ambiguous intent or injection patterns that rules cannot fully capture | Use blocklists, regex, or length and format checks for defined rules |
+| Output screening | Before the response reaches the user: is it safe to return? | Judge qualities requiring language understanding, such as toxicity or policy compliance | Validate known strings, forbidden fields, or schemas |
+| Tool-call authorization | Before a side effect: may this caller take this action in this context? | Rarely appropriate for authorization | Enforce allowed actions, identity, and scope with auditable, replayable checks |
+
 ## LLM risks & failure modes
 
 | Failure mode | What it looks like | Primary mitigation |
@@ -39,10 +45,11 @@ flowchart TD
 ## Human-in-the-loop validation
 
 **Key points:**
+
 - Automate low-risk actions and require approval for high-risk actions such as large refunds, medical or legal content, and account deletion.
 - Use calibrated confidence and stratified sampling to choose cases for review. See [F-D5 Sec. 5.5](../../CCA-F/domains/d5-context-reliability.md).
-- Add reviewed cases to the evaluation set.
-- Include structured context with every escalation.
+- **Route by stakes, not volume:** Reversibility and the cost of an error determine stakes. Calibrated confidence estimates error likelihood and helps choose review volume; it does not change the stakes.
+- Include structured context and a decision trace with every escalation; add reviewed cases to the evaluation set.
 
 ## Compliance regimes
 
@@ -66,11 +73,31 @@ flowchart LR
 
 **Common cues:** Health data suggests HIPAA, a BAA, and minimum PHI access. EU personal data suggests GDPR. US federal work requires FedRAMP-authorized services. Map data across prompts, logs, embeddings, and vendor APIs before selecting controls. Do not log sensitive prompts unchanged.
 
+**Example obligation-to-evidence mapping:** Assign owners and confirm the chosen route and features meet the applicable requirements.
+
+| Obligation | Technical control | Evidence | Example owner |
+|---|---|---|---|
+| HIPAA: protected health data | Use a HIPAA-ready Enterprise plan or first-party API configuration covered by a signed BAA; enable HIPAA compliance and use eligible features | Signed BAA, enabled admin setting, and eligible-feature list | Security lead |
+| FedRAMP: government workload | Use an authorized route at the required impact level | Authorization record and confirmation the workload runs exclusively on that route | Platform owner |
+| Data residency | Configure supported regional processing and storage; check logs, caches, monitoring, and retention paths | Residency configuration and data-flow record showing where copies reside | Data owner |
+| Transparency: reconstruct decisions | Retain queryable decision logs for the required period | A sample decision reconstructed from the live log | Architect |
+
 ## Ethical AI
 
 - **Bias and fairness:** Evaluate demographic groups separately. Skewed training or retrieval data can create skewed outcomes. Document known limits.
 - **Transparency:** Disclose AI involvement, support explanations with citations or reasoning records, and provide appeal paths for important decisions.
 - **Accountability:** Assign an owner for model behaviour, keep audit records, and define incident response. Governance is organizational as well as technical.
+
+Instrument four sources of skew: retrieval corpus, prompt framing, examples, and downstream routing. Decision logs must support investigation of unequal outcomes and human review.
+
+**Credit-decision checklist:**
+
+- Are all four potential sources of skew instrumented?
+- For an adverse decision, can you provide the inputs and an actionable reason to the applicant?
+- Can logs show a regulator whether similar applicants were treated comparably?
+- Can the team retrieve the full trace for a flagged decision?
+
+A "no" identifies a design gap.
 
 ## Enforcing policy in Claude Code: managed settings
 
@@ -78,7 +105,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    ADMIN["🔒 Managed / policy settings (MDM · managed-settings.json · registry): top of precedence — non-overridable"] --> A["Least privilege"]
+    ADMIN["🔒 Managed / policy settings (MDM · managed-settings.json · registry): top of precedence: non-overridable"] --> A["Least privilege"]
     ADMIN --> B["Deterministic enforcement"]
     ADMIN --> C["Accountability & audit"]
     A --> A1["availableModels + enforceAvailableModels allowedMcpServers / deniedMcpServers (deny wins) additionalDirectories scoping"]
@@ -93,19 +120,21 @@ flowchart TD
 ```
 
 **Key controls:**
+
 - **Least privilege controls model and tool access.** `availableModels` lists permitted models. `enforceAvailableModels: true` applies the list to the *Default* option too. `deniedMcpServers` and `allowManagedMcpServersOnly` control MCP access, with deny taking priority. `enableAllProjectMcpServers` does the opposite by approving every project server.
 - **Deterministic enforcement locks permissions.** Managed deny rules override user and project allow rules ([F-D3 Sec. 3.8](../../CCA-F/domains/d3-claude-code.md)). `allowManagedPermissionRulesOnly` ignores local rules. `disableBypassPermissionsMode` and `disableAutoMode` remove ways around the policy.
 - **Accountability needs identity and audit.** `forceLoginMethod` and `forceLoginOrgUUID` bind sessions to the approved organization. A `ConfigChange` hook records settings and skill changes. `disableSideloadFlags` blocks unreviewed `--plugin-dir`, `--agents`, and `--mcp-config` use. `blockedMarketplaces` and `strictKnownMarketplaces` control plugin sources.
-- These controls are central, deterministic, and hard to bypass. Instructions in a prompt or `CLAUDE.md` are advisory; managed settings enforce policy.
+- Prompts and `CLAUDE.md` provide instructions; managed settings enforce policy.
 
-## Least privilege for server-hosted agents: Managed Agents permission policies & vaults
+## Managed Agents: permission policies & vaults
 
-> Sources: [permission-policies](https://platform.claude.com/docs/en/managed-agents/permission-policies) · [vaults](https://platform.claude.com/docs/en/managed-agents/vaults). When the agent loop runs on Anthropic's infra ([P-D3](d3-integration.md) Managed Agents) rather than in Claude Code, least-privilege and accountability move from managed *settings* to two API primitives.
+> Sources: [permission-policies](https://platform.claude.com/docs/en/managed-agents/permission-policies) · [vaults](https://platform.claude.com/docs/en/managed-agents/vaults). For [hosted Managed Agents](d3-integration.md#managed-agents---the-hosted-harness-deployment-choice), these API primitives provide action controls and credentials.
 
 **Key points:**
+
 - **Permission policies control server-run tools** with `always_allow` or `always_ask`. The built-in agent tools default to `always_allow`, while MCP tools default to `always_ask`. This prevents newly added MCP tools from running without review. Use `configs` for per-tool rules. An `always_ask` call pauses the session with `requires_action` until you send `user.tool_confirmation`. Your application must gate custom tools itself.
 - **Vaults store per-user credentials** so the agent can act as that user without your own secret store. Reference `vault_ids` when creating a session. Types are `mcp_oauth`, `static_bearer`, and `environment_variable`. The last inserts the secret only when traffic leaves, so the sandbox sees a placeholder. Limit it with `networking.allowed_hosts` and `injection_location`. Secrets are write-only; archive or delete a vault to revoke access, including in active sessions.
-- **Permission policies govern actions; vaults govern credentials.** Together they provide least privilege, user-level accountability, rotation, revocation, and audit webhooks for hosted agents.
+- **Separate action approval from credential access.** Permission policies govern actions; vaults supply per-user credentials with rotation and revocation. Use audit webhooks to track activity.
 
 ---
 

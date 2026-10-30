@@ -22,10 +22,22 @@ flowchart LR
 
 ## Structured discovery
 
+A requirement must be testable before it can guide a design. Record the business goal, constraints, assumptions, and evidence needed to demonstrate success.
+
 **Key points:**
+
 - Gather requirements in order: business goal → users and volume → data and sensitivity → integrations → latency and cost limits → compliance → success measures.
 - Agree on success measures before building. The accuracy target set during discovery becomes the evaluation target in [P-D4](d4-evaluation-testing-optimization.md).
 - Ask about hidden constraints early. See [F-D3 Sec. 3.5](../../CCA-F/domains/d3-claude-code.md).
+- Record four categories: **outcomes**, **prohibited actions and approval boundaries**, **cost/latency/volume limits**, and **required evidence**. For each requirement, capture the constraint, design implication, and any assumption.
+
+**Feasibility:** Assess whether next-token prediction suits the task, required knowledge is available, working memory is sufficient, and instructions can steer behavior reliably. Check these limits against cost and latency constraints; document every condition the verdict depends on.
+
+| Verdict | Meaning | Must document |
+|---|---|---|
+| Feasible as scoped | Task fits model capabilities; cost and p95 latency meet limits | Assumptions and when to revalidate them |
+| Feasible with constraints | Works only under specific enforced conditions | Each condition and the failure if it is violated |
+| Not feasible | A property limitation can't be compensated within scope/budget | Which constraint disqualifies it, and any scope change that would flip the verdict |
 
 ## Communicating trade-offs
 
@@ -35,7 +47,7 @@ flowchart TD
     AUD -- "executives" --> EX["Business terms: value pillar impact, risk, cost curve, time-to-market"]
     AUD -- "engineering" --> EN["Technical terms: latency budgets, failure modes, integration surface"]
     AUD -- "legal / compliance" --> LG["Data flows, regimes, controls, audit evidence"]
-    EX & EN & LG --> REC["One recommendation + explicit alternatives considered + why they lost; never a menu without a stance"]
+    EX & EN & LG --> REC["Recommendation + alternatives + reasons for the decision"]
     classDef aud fill:#C2185B,color:#fff,stroke:#880E4F,stroke-width:2px
     classDef n fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
     class EX,EN,LG,REC aud
@@ -43,18 +55,25 @@ flowchart TD
 ```
 
 **Key points:**
-- Explain the same decision in terms each audience understands.
-- Recommend one option and explain why. Record the context, alternatives, decision, and effects in an ADR.
+
+- Recommend one option and explain why. Record the context, alternatives, decision, and effects in an architecture decision record (ADR).
+- State the **benefit, limitation, and cost of reversing the decision**; include its compliance impact.
 - Use measured accuracy ranges and explain error handling. Do not promise perfect results. Allow time for evaluation and improvement.
+- **Partner Track (not tested by the Architect exam):** Design demos around the buyer's real scenario, identify limitations first, and bring requirements, candidate patterns, and open questions to joint scoping.
 
 ## SLAs & feedback loops
 
 - An AI SLA should cover **latency** (p50/p95), **availability**, a measured **quality floor**, a **cost ceiling**, and incident response times.
 - Review quality dashboards and sample outputs with stakeholders. Add user feedback to the evaluation set. Publish changes to prompts and models because they can change system behavior.
+- Map each signal to a trigger, action, and owner. Set SLA thresholds from user expectations, business needs, and evals; schedule regulated checkpoints independently of alerts.
 
 ## Documentation & handoff
 
-**Handoff package:** Architecture and data-flow diagrams · versioned prompt and configuration list · runbooks with common failures and escalation paths · evaluation baselines and rerun instructions · known limits. Include training and a support period, not only an email. See [P-D7](d7-dev-productivity-enablement.md).
+**Handoff package:** Architecture and data-flow diagrams · versioned prompt and configuration list · runbooks with common failures and escalation paths · evaluation baselines and rerun instructions · known limits. Include training and a defined support period. See [P-D7](d7-dev-productivity-enablement.md).
+
+Include ADRs and the control register with owners and evidence. **Completeness test:** Can an architect who was not in the room make a safe change using the document?
+
+For outcomes, record scope, before-and-after business metrics, the auditable control, measurement owner, and reuse potential to support an expansion decision.
 
 ---
 

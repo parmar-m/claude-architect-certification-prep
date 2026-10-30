@@ -8,12 +8,14 @@ This domain covers shared configuration, AI-assisted development, debugging, and
 
 ## Team configuration
 
+Configuration scope determines who receives a change. Version team standards in the project; keep personal experiments in user configuration. Define distribution and spend controls before rollout.
+
 ```mermaid
 flowchart TD
     ORG["🏢 Team enablement"] --> SHARED["Version-controlled shared config: CLAUDE.md · .claude/rules/ · .claude/commands/ · .claude/skills/ · .mcp.json (env-expanded secrets)"]
     ORG --> PERS["Personal layer: ~/.claude/…, experiments stay local"]
     SHARED --> CONS["Consistency: every clone gets the same standards, commands, and tool integrations"]
-    PERS --> SAFE["Innovation without breaking teammates"]
+    PERS --> SAFE["Personal experiments stay outside shared configuration"]
     CONS & SAFE --> ROLL["Rollout: pilot team → measure → iterate config → org playbooks → champions + training"]
     classDef sh fill:#6D4C41,color:#fff,stroke:#4E342E,stroke-width:2px
     classDef pe fill:#8D6E63,color:#fff,stroke:#5D4037,stroke-width:2px
@@ -24,9 +26,18 @@ flowchart TD
 ```
 
 **Key points:**
-- Put team standards in the repository: `CLAUDE.md`, commands, skills, and `.mcp.json`. Keep personal preferences in `~/.claude/`. See [F-D3 Sec. 3.1–3.2](../../CCA-F/domains/d3-claude-code.md).
+
+- Version shared configuration in the repository; keep personal experiments in `~/.claude/` ([F-D3 Sec. 3.1–3.2](../../CCA-F/domains/d3-claude-code.md)).
 - Reference secrets through environment variables. Never commit them. See [F-D2 Sec. 2.4](../../CCA-F/domains/d2-tool-design-mcp.md).
-- Adoption needs more than configuration. Start with a pilot, measure the results, train the team, and provide playbooks and local champions.
+- Pilot a measured workflow with a champion per team. Expand in batches using training and playbooks.
+- Set model defaults, allowlists, effort guidance, and spend, rate, or per-user limits before rollout.
+
+| Skill distribution | Best when | Governance and rollback |
+|---|---|---|
+| Org-provisioned Skill | Everyone in the organization needs the capability | Owners manage availability and removal; users can toggle skills off. No version pinning or native rollback; updates require re-upload |
+| Plugin assigned to a group or org | Specific teams need a governed procedure or tool set | Group targeting, install preferences, and version-controlled updates from a connected repository |
+| Claude Code project Skill | A team shares a convention within a project | Stored in `.claude/skills/`; versioned and rolled back with the repository |
+| API Skill | A product calls the capability programmatically | Governed by the calling system; supports explicit version pinning |
 
 ## AI-assisted workflow improvements
 
@@ -40,18 +51,27 @@ flowchart TD
 
 Measure review time, escaped defects, and onboarding time before and after adoption. Report these results through the [P-D6](d6-stakeholder-lifecycle.md) feedback loop.
 
+Generated code needs the same correctness, security, and maintainability checks as other code. Require a verification checklist and an author who can explain the implementation.
+
 ## Debugging & operational support
 
 ```mermaid
 flowchart LR
     ISSUE["🚨 Operational issue"] --> TRI["Triage with AI assistance: logs + stack traces + repo context"] --> RCA["Root-cause exploration: plan mode for unfamiliar systems · direct execution for scoped fixes"]
-    RCA --> FIX["Fix + regression test"] --> RB["Feed learnings back: runbook entry · CLAUDE.md rule · new eval case"]
+    RCA --> FIX["Fix + regression test"] --> RB["Record diagnosis: runbook entry · CLAUDE.md rule · new eval case"]
     classDef step fill:#6D4C41,color:#fff,stroke:#4E342E,stroke-width:2px
     class TRI,RCA,FIX,RB step
     class ISSUE step
 ```
 
-After each incident, update a runbook, coding rule, or evaluation case so the team does not solve the same problem again.
+Translate symptoms into likely causes and first actions. After each incident, update runbooks, escalation paths, coding rules, or eval cases so the team can handle recurrences independently.
+
+| Symptom | Likely architecture cause | First action |
+|---|---|---|
+| Gradual quality degradation without a code change | Model or prompt change, or retrieval drift as the corpus grows | Compare against an eval set; check changes to model, prompt, and corpus |
+| Latency spike | Larger context, slow tool, or cache misses | Trace the slowest span; check token counts, tool latency, and cache behavior |
+| Intermittent tool failures | Authorization, rate limits, or an unhandled error | Inspect the tool's auth and limits; trace a failed call end to end |
+| Cost increase without usage change | Model tier increased or caching regressed | Check per-request model tier and cache hit rate against the budget model |
 
 ---
 
